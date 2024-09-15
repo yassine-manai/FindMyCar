@@ -1,0 +1,10 @@
+server:
+    host: 127.0.0.1
+    port: 8100
+    
+database:
+    host_db: 127.0.0.1
+    port_db: 5432
+    user_db: postgres
+    password_db: postgres
+    name_db: fyc

@@ -1,0 +1,258 @@
+package pkg
+
+import (
+	"context"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	"github.com/uptrace/bun"
+)
+
+type ZoneAPI struct {
+	ZoneService *ZoneOp
+}
+
+func NewZoneAPI(db *bun.DB) *ZoneAPI {
+	return &ZoneAPI{
+		ZoneService: NewZone(db),
+	}
+}
+
+// GetZones godoc
+//
+//	@Summary		Get all zones
+//	@Description	Get a list of all zones
+//	@Tags			Zones
+//	@Produce		json
+//	@Param			extra	query		string	false	"Include extra information if 'yes'"
+//	@Success		200	{array}		Zone
+//	@Router			/fyc/zones [get]
+func (api *ZoneAPI) GetZones(c *gin.Context) {
+	ctx := context.Background()
+	extra_req := c.DefaultQuery("extra", "false")
+
+	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
+		zones, err := api.ZoneService.GetAllZoneExtra(ctx)
+		if err != nil {
+			log.Err(err).Msg("Error getting all zones with extra data ")
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "An unexpected error occurred",
+				"message": "Error getting all zones with extra data ",
+				"code":    10,
+			})
+			return
+		}
+
+		if len(zones) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":   "Not Found",
+				"message": "No zones found ",
+				"code":    9,
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, zones)
+		return
+	}
+
+	zoo, err := api.ZoneService.GetAllZone(ctx)
+	if err != nil {
+		log.Err(err).Msg("Error getting all zones")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "An unexpected error occurred",
+			"message": "Error getting all zones",
+			"code":    10,
+		})
+		return
+	}
+
+	if len(zoo) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "No zones found",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, zoo)
+}
+
+// CreateZone godoc
+//
+//	@Summary		Add a new zone
+//	@Description	Add a new zone to the database
+//	@Tags			Zones
+//	@Accept			json
+//	@Produce		json
+//	@Param			zone	body		Zone	true	"Zone data"
+//	@Success		201		{object}	Zone
+//	@Router			/fyc/zones [post]
+func (api *ZoneAPI) CreateZone(c *gin.Context) {
+	var zone Zone
+
+	if err := c.ShouldBindJSON(&zone); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request payload",
+			"message": err.Error(),
+			"code":    12,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	// Insert the new car into the database
+	if err := api.ZoneService.CreateZone(ctx, &zone); err != nil {
+		log.Err(err).Msg("Error creating new zone")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to create a new zone",
+			"message": err.Error(),
+			"code":    10,
+		})
+		return
+	}
+
+	response := Zone{
+		ID:          zone.ID,
+		ZoneID:      zone.ZoneID,
+		MaxCapacity: zone.MaxCapacity,
+		Present:     zone.Present,
+		Name:        zone.Name,
+		Description: zone.Description,
+		CarParkID:   zone.CarParkID,
+		Extra:       zone.Extra,
+	}
+
+	c.JSON(http.StatusCreated, response)
+}
+
+// UpdateZoneId godoc
+//
+//	@Summary		Update a zone by ID
+//	@Description	Update an existing zone by ID
+//	@Tags			Zones
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path		int			true	"Zone ID"
+//	@Param			zone		body		Zone		true	"Updated zone data"
+//	@Success		200		{object}	Zone
+//	@Failure		400		{object}	map[string]interface{}	"Invalid request"
+//	@Failure		404		{object}	map[string]interface{}	"Zone not found"
+//	@Router			/fyc/zones/{id} [put]
+func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
+	// Convert ID param to integer
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid ID format",
+			"message": "ID must be a valid integer",
+			"code":    12,
+		})
+		return
+	}
+
+	var updates Zone
+
+	if err := c.ShouldBindJSON(&updates); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request payload",
+			"message": err.Error(),
+			"code":    12,
+		})
+		return
+	}
+
+	if updates.ZoneID != id {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "ID mismatch",
+			"message": "The ID in the request body does not match the param ID",
+			"code":    13,
+		})
+		return
+	}
+
+	// Call the service to update the present car
+	ctx := context.Background()
+	rowsAffected, err := api.ZoneService.UpdateZone(ctx, id, &updates)
+	if err != nil {
+		log.Err(err).Msg("Error updating zone by ID")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to update zone",
+			"message": err.Error(),
+			"code":    10,
+		})
+		return
+	}
+
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "No zone found with the specified ID",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":       "Zone modified successfully",
+		"rows_affected": rowsAffected,
+		"code":          8,
+		"response":      updates,
+	})
+}
+
+// DeleteZone godoc
+//
+//	@Summary		Delete a zone
+//	@Description	Delete a zone by ID
+//	@Tags			Zones
+//	@Param			id	path		int		true	"Zone ID"
+//	@Success		200	{object}	map[string]interface{}	"Zone deleted successfully"
+//	@Failure		400		{object}	map[string]interface{}	"Invalid request"
+//	@Failure		404		{object}	map[string]interface{}	"Zone not found"
+//	@Router			/fyc/zones/{id} [delete]
+func (api *ZoneAPI) DeleteZone(c *gin.Context) {
+
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid ID format",
+			"message": "ID must be a valid integer",
+			"code":    12,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	rowsAffected, err := api.ZoneService.DeleteZone(ctx, id)
+	if err != nil {
+		log.Err(err).Msg("Error deleting Zone")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to delete Zone",
+			"message": err.Error(),
+			"code":    10,
+		})
+		return
+	}
+
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "No zone found with the specified ID ------  affected rows 0 ",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":      "Zone deleted successfully",
+		"rowsAffected": rowsAffected,
+		"code":         8,
+	})
+}

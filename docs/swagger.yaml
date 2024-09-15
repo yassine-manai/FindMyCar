@@ -1,0 +1,973 @@
+definitions:
+  config.CustomDate:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  pkg.Camera:
+    properties:
+      ID:
+        type: integer
+      cam_ip:
+        type: string
+      cam_name:
+        type: string
+      cam_password:
+        type: string
+      cam_port:
+        type: string
+      cam_type:
+        type: string
+      cam_user:
+        type: string
+      direction:
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      zone_id_in:
+        type: integer
+      zone_id_out:
+        type: integer
+    required:
+    - cam_ip
+    - cam_name
+    - cam_password
+    - cam_port
+    - cam_type
+    - cam_user
+    - direction
+    - extra
+    - zone_id_in
+    - zone_id_out
+    type: object
+  pkg.CarDetail:
+    properties:
+      ID:
+        type: integer
+      cam_body:
+        additionalProperties: true
+        type: object
+      extra:
+        additionalProperties: true
+        type: object
+      image1:
+        items:
+          type: integer
+        type: array
+      image2:
+        items:
+          type: integer
+        type: array
+      image3:
+        items:
+          type: integer
+        type: array
+    required:
+    - cam_body
+    - extra
+    - image1
+    - image2
+    - image3
+    type: object
+  pkg.Carpark:
+    properties:
+      capacity:
+        type: integer
+      extra:
+        additionalProperties: true
+        type: object
+      id:
+        type: integer
+      language:
+        additionalProperties: true
+        type: object
+      name:
+        type: string
+      type:
+        type: string
+    required:
+    - capacity
+    - extra
+    - language
+    - name
+    - type
+    type: object
+  pkg.ImageZone:
+    properties:
+      ID:
+        type: integer
+      extra:
+        additionalProperties: true
+        type: object
+      image_l:
+        items:
+          type: integer
+        type: array
+      image_s:
+        items:
+          type: integer
+        type: array
+      lang:
+        type: string
+      zone_id:
+        type: integer
+    required:
+    - extra
+    - image_l
+    - image_s
+    - lang
+    - zone_id
+    type: object
+  pkg.PresentCar:
+    properties:
+      ID:
+        type: integer
+      cameraID:
+        type: integer
+      carDetailsID:
+        type: integer
+      confidence:
+        type: integer
+      currZoneID:
+        type: integer
+      direction:
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      lastZoneID:
+        type: integer
+      lpn:
+        type: string
+      transactionDate:
+        $ref: '#/definitions/config.CustomDate'
+    required:
+    - cameraID
+    - carDetailsID
+    - confidence
+    - currZoneID
+    - direction
+    - extra
+    - lastZoneID
+    - lpn
+    - transactionDate
+    type: object
+  pkg.TokenRequest:
+    properties:
+      clientId:
+        type: string
+      clientSecret:
+        type: string
+    required:
+    - clientId
+    - clientSecret
+    type: object
+  pkg.TokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  pkg.Zone:
+    properties:
+      ID:
+        type: integer
+      carpark_id:
+        type: integer
+      description:
+        type: string
+      extra:
+        additionalProperties: true
+        type: object
+      max_capacity:
+        type: integer
+      name:
+        additionalProperties: true
+        type: object
+      present:
+        type: integer
+      zone_id:
+        type: integer
+    required:
+    - carpark_id
+    - description
+    - extra
+    - max_capacity
+    - name
+    - present
+    - zone_id
+    type: object
+info:
+  contact: {}
+  title: Find Your Car
+  version: "1.0"
+paths:
+  /fyc/cameras:
+    get:
+      description: Get a list of all cameras
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of cameras
+          schema:
+            items:
+              $ref: '#/definitions/pkg.Camera'
+            type: array
+        "404":
+          description: No cameras found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all cameras
+      tags:
+      - Cameras
+    post:
+      consumes:
+      - application/json
+      description: Add a new camera to the database
+      parameters:
+      - description: Camera data
+        in: body
+        name: camera
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Camera'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Camera created successfully
+          schema:
+            $ref: '#/definitions/pkg.Camera'
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to create a new camera
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new camera
+      tags:
+      - Cameras
+  /fyc/cameras/{id}:
+    delete:
+      description: Delete a camera by ID
+      parameters:
+      - description: Camera ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Camera deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Camera not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete camera
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a camera by ID
+      tags:
+      - Cameras
+    put:
+      consumes:
+      - application/json
+      description: Update an existing camera by ID
+      parameters:
+      - description: Camera ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated camera data
+        in: body
+        name: camera
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Camera'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Camera updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload or ID mismatch
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Camera not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update camera
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a camera by ID
+      tags:
+      - Cameras
+  /fyc/carDetails:
+    get:
+      description: Get a list of all car details
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.CarDetail'
+            type: array
+      summary: Get all car details
+      tags:
+      - Car Details
+    post:
+      consumes:
+      - application/json
+      description: Add a new car detail to the database
+      parameters:
+      - description: Car detail data
+        in: body
+        name: CarDetail
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.CarDetail'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.CarDetail'
+      summary: Add a new car detail
+      tags:
+      - Car Details
+  /fyc/carDetails/{id}:
+    delete:
+      description: Delete a car detail by ID
+      parameters:
+      - description: Car detail ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Car detail deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Car detail not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a car detail
+      tags:
+      - Car Details
+    put:
+      consumes:
+      - application/json
+      description: Update an existing car detail by ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated car detail data
+        in: body
+        name: CarDetail
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.CarDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.CarDetail'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Car detail not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a car detail by ID
+      tags:
+      - Car Details
+  /fyc/carparks:
+    get:
+      description: Get a list of all carparks
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.Carpark'
+            type: array
+      summary: Get all carparks
+      tags:
+      - Carparks
+    post:
+      consumes:
+      - application/json
+      description: Add a new carpark to the database
+      parameters:
+      - description: Carpark data
+        in: body
+        name: carpark
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Carpark'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.Carpark'
+      summary: Add a new carpark
+      tags:
+      - Carparks
+  /fyc/carparks/{id}:
+    delete:
+      description: Delete a carpark by ID
+      parameters:
+      - description: Carpark ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Carpark deleted successfully
+          schema:
+            type: string
+      summary: Delete a carpark
+      tags:
+      - Carparks
+    get:
+      description: Get a specific carpark by ID
+      parameters:
+      - description: Carpark ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Carpark'
+      summary: Get carpark by ID
+      tags:
+      - Carparks
+    put:
+      consumes:
+      - application/json
+      description: Update an existing carpark by ID
+      parameters:
+      - description: Carpark ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated carpark data
+        in: body
+        name: carpark
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Carpark'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Carpark'
+      summary: Update a carpark
+      tags:
+      - Carparks
+  /fyc/presentcars:
+    get:
+      description: Get a list of all present cars
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.PresentCar'
+            type: array
+      summary: Get all present cars
+      tags:
+      - PresentCars
+    post:
+      consumes:
+      - application/json
+      description: Add a new present car to the database
+      parameters:
+      - description: Present Car data
+        in: body
+        name: presentCar
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.PresentCar'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.PresentCar'
+      summary: Add a new present car
+      tags:
+      - PresentCars
+    put:
+      consumes:
+      - application/json
+      description: Update an existing present car by lpn
+      parameters:
+      - default: A
+        description: string default
+        in: query
+        name: lpn
+        required: true
+        type: string
+      - description: Updated present car data by lpn
+        in: body
+        name: presentCar
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.PresentCar'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.PresentCar'
+      summary: Update a present car by LPN
+      tags:
+      - PresentCars
+  /fyc/presentcars/{id}:
+    delete:
+      description: Delete a present car by ID
+      parameters:
+      - description: Present Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Delete a present car
+      tags:
+      - PresentCars
+    put:
+      consumes:
+      - application/json
+      description: Update an existing present car by ID
+      parameters:
+      - description: Present Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated present car data
+        in: body
+        name: presentCar
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.PresentCar'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.PresentCar'
+      summary: Update a present car by ID
+      tags:
+      - PresentCars
+  /fyc/presentcars/{lpn}:
+    get:
+      description: Get a specific present car by LPN
+      parameters:
+      - description: License Plate Number
+        in: path
+        name: lpn
+        required: true
+        type: string
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.PresentCar'
+      summary: Get present car by LPN
+      tags:
+      - PresentCars
+  /fyc/v1:
+    get:
+      description: Get car information based on LPN, language, and fuzzy logic
+      parameters:
+      - description: License Plate Number
+        in: query
+        name: LPN
+        required: true
+        type: string
+      - description: Language (EN, AR, etc.)
+        in: query
+        name: L
+        required: true
+        type: string
+      - description: Fuzzy logic setting (On/Off)
+        in: query
+        name: FuzzyLogic
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Get car information
+      tags:
+      - Test_Version1
+  /fyc/v1/Auth/token:
+    post:
+      consumes:
+      - application/json
+      description: Generates a JWT token using client ID and client secret.
+      parameters:
+      - description: Client credentials
+        in: body
+        name: TokenRequest
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token generated successfully
+          schema:
+            $ref: '#/definitions/pkg.TokenResponse'
+        "400":
+          description: Invalid request payload
+          schema:
+            type: string
+        "401":
+          description: Invalid client credentials
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Generate a JWT token
+      tags:
+      - Token
+  /fyc/zones:
+    get:
+      description: Get a list of all zones
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.Zone'
+            type: array
+      summary: Get all zones
+      tags:
+      - Zones
+    post:
+      consumes:
+      - application/json
+      description: Add a new zone to the database
+      parameters:
+      - description: Zone data
+        in: body
+        name: zone
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Zone'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.Zone'
+      summary: Add a new zone
+      tags:
+      - Zones
+  /fyc/zones/{id}:
+    delete:
+      description: Delete a zone by ID
+      parameters:
+      - description: Zone ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Zone deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Zone not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a zone
+      tags:
+      - Zones
+    put:
+      consumes:
+      - application/json
+      description: Update an existing zone by ID
+      parameters:
+      - description: Zone ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated zone data
+        in: body
+        name: zone
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Zone'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Zone'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Zone not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a zone by ID
+      tags:
+      - Zones
+  /fyc/zonesImage:
+    get:
+      description: Get a list of all zones images
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.ImageZone'
+            type: array
+      summary: Get all zones image
+      tags:
+      - Zones Image
+    post:
+      consumes:
+      - application/json
+      description: Add a new zone image to the database
+      parameters:
+      - description: Zone image data
+        in: body
+        name: ImageZone
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.ImageZone'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.ImageZone'
+      summary: Add a new zone Image
+      tags:
+      - Zones Image
+  /fyc/zonesImage/{id}:
+    delete:
+      description: Delete a zone image by ID
+      parameters:
+      - description: Zone image ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Zone image deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Zone image not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a zone image
+      tags:
+      - Zones Image
+    put:
+      consumes:
+      - application/json
+      description: Update an existing zone image by ID
+      parameters:
+      - description: Zone ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated zone image data
+        in: body
+        name: Zone
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.ImageZone'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Zone'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Zone image not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a zone image by ID
+      tags:
+      - Zones Image
+swagger: "2.0"
