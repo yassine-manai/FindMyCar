@@ -82,6 +82,43 @@ func (api *ZoneImageAPI) GetImageZones(c *gin.Context) {
 	c.JSON(http.StatusOK, zoimg)
 }
 
+// GetZoneImageByID godoc
+//
+//	@Summary		Get zoneimage by ID
+//	@Description	Get a specific zoneimage by ID
+//	@Tags			Zones Image
+//	@Produce		json
+//	@Param			id	path		int	true	"ZoneImage ID"
+//	@Success		200	{object}	ImageZone
+//	@Router			/fyc/zonesImage/{id} [get]
+func (api *ZoneImageAPI) GetZoneImageByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Invalid Zone ID format")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid ID format",
+			"message": "Zone ID must be a valid integer",
+			"code":    12,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	zoneimage, err := api.ZoneImageService.GetZoneImageByID(ctx, id)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Error retrieving zoneimage by ID")
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "Zone Image not found",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, zoneimage)
+}
+
 // CreateZone godoc
 //
 //	@Summary		Add a new zone Image

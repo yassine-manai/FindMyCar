@@ -70,7 +70,7 @@ func GenerateJWT(clientId string) (string, error) {
 //
 //	@Summary		Generate a JWT token
 //	@Description	Generates a JWT token using client ID and client secret.
-//	@Tags			Token
+//	@Tags			Test_Version1
 //	@Accept			json
 //	@Produce		json
 //	@Param			TokenRequest	body		TokenRequest	true	"Client credentials"

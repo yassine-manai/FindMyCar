@@ -70,6 +70,11 @@ func main() {
 		panic(CarDetailError)
 	}
 
+	_, ClientCredError := db.NewCreateTable().Model((*pkg.ApiManage)(nil)).IfNotExists().Exec(ctx)
+	if ClientCredError != nil {
+		panic(ClientCredError)
+	}
+
 	r := pkg.SetupRouter(db)
 
 	var host = fmt.Sprintf("%s:%d", configvar.Server.Host, configvar.Server.Port)

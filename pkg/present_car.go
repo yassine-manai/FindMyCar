@@ -25,6 +25,7 @@ type PresentCar struct {
 }
 
 type ResponsePC struct {
+	bun.BaseModel   `json:"-" bun:"table:presentcar"`
 	ID              int               `bun:"id,pk,autoincrement"`
 	CarDetailsID    int               `bun:"carDetailsID"`
 	CameraID        int               `bun:"cameraID"`

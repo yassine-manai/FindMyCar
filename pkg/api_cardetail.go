@@ -119,6 +119,43 @@ func (api *CarDetailAPI) CreateCarDetail(c *gin.Context) {
 	c.JSON(http.StatusCreated, carDetail)
 }
 
+// GetCarDetailByID godoc
+//
+//	@Summary		Get cardetail by ID
+//	@Description	Get a specific carDetail by ID
+//	@Tags			Car Details
+//	@Produce		json
+//	@Param			id	path		int	true	"CarDetail ID"
+//	@Success		200	{object}	CarDetail
+//	@Router			/fyc/carDetails/{id} [get]
+func (api *CarDetailAPI) GetCarDetailsById(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Invalid carDetail ID format")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid ID format",
+			"message": "carDetail ID must be a valid integer",
+			"code":    12,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	carDetail, err := api.CarDetailService.GetCarDetailByID(ctx, id)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Error retrieving carDetail by ID")
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "CarDetail not found",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, carDetail)
+}
+
 // UpdateCarDetailById godoc
 //
 //	@Summary		Update a car detail by ID

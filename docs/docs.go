@@ -15,6 +15,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/findmycar": {
+            "get": {
+                "description": "Find a car using the license plate number --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\nValid LICENCE PLATE : ABCD ---",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car Location"
+                ],
+                "summary": "Find a car by license plate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "License Plate",
+                        "name": "license_plate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Fuzzy Logic",
+                        "name": "fuzzy_logic",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.FindMyCarResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fyc/cameras": {
             "get": {
                 "description": "Get a list of all cameras",
@@ -107,6 +160,33 @@ const docTemplate = `{
             }
         },
         "/fyc/cameras/{id}": {
+            "get": {
+                "description": "Get a specific camera by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cameras"
+                ],
+                "summary": "Get camera by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Camera ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Camera"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update an existing camera by ID",
                 "consumes": [
@@ -279,6 +359,33 @@ const docTemplate = `{
             }
         },
         "/fyc/carDetails/{id}": {
+            "get": {
+                "description": "Get a specific carDetail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car Details"
+                ],
+                "summary": "Get cardetail by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CarDetail ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.CarDetail"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update an existing car detail by ID",
                 "consumes": [
@@ -520,6 +627,161 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Carpark deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/clientCreds": {
+            "get": {
+                "description": "Get a list of all client credentials",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Get all client credentials",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Include extra information if 'yes'",
+                        "name": "extra",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pkg.ApiManage"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new client credential to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Add a new client credential",
+                "parameters": [
+                    {
+                        "description": "Client credential data",
+                        "name": "clientCred",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ApiManage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ApiManage"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/clientCreds/{id}": {
+            "get": {
+                "description": "Get a specific client credential by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Get client credential by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "client_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ApiManage"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing client credential by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Update a client credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated client credential data",
+                        "name": "clientCred",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ApiManage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ApiManage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a client credential by ID",
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Delete a client credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Client credential deleted successfully",
                         "schema": {
                             "type": "string"
                         }
@@ -810,7 +1072,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Token"
+                    "Test_Version1"
                 ],
                 "summary": "Generate a JWT token",
                 "parameters": [
@@ -916,6 +1178,33 @@ const docTemplate = `{
             }
         },
         "/fyc/zones/{id}": {
+            "get": {
+                "description": "Get a specific zone by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Get zone by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Zone ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Zone"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update an existing zone by ID",
                 "consumes": [
@@ -1073,6 +1362,33 @@ const docTemplate = `{
             }
         },
         "/fyc/zonesImage/{id}": {
+            "get": {
+                "description": "Get a specific zoneimage by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones Image"
+                ],
+                "summary": "Get zoneimage by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ZoneImage ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ImageZone"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update an existing zone image by ID",
                 "consumes": [
@@ -1165,6 +1481,95 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/getpicture": {
+            "get": {
+                "description": "Get an image using the picture name --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car Location"
+                ],
+                "summary": "Get a picture by picture name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Picture Name",
+                        "name": "picture_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.PictureResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/token": {
+            "post": {
+                "description": "Get an access token using client credentials\nValide PARAMS ---------- Client ID : 6 / Client Secret : 4711 / grant_type : client_credentials",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car Location"
+                ],
+                "summary": "Get an access token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "client_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client Secret",
+                        "name": "client_secret",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Grant Type",
+                        "name": "grant_type",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.TokenResponseTest"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1172,6 +1577,24 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.ApiManage": {
+            "type": "object",
+            "required": [
+                "clientSecret",
+                "fuzzy"
+            ],
+            "properties": {
+                "clientID": {
+                    "type": "string"
+                },
+                "clientSecret": {
+                    "type": "string"
+                },
+                "fuzzy": {
                     "type": "string"
                 }
             }
@@ -1268,6 +1691,20 @@ const docTemplate = `{
                 }
             }
         },
+        "pkg.CarLocation": {
+            "type": "object",
+            "properties": {
+                "facility": {
+                    "type": "string"
+                },
+                "picture_name": {
+                    "type": "string"
+                },
+                "spot_id": {
+                    "type": "string"
+                }
+            }
+        },
         "pkg.Carpark": {
             "type": "object",
             "required": [
@@ -1297,6 +1734,20 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "pkg.FindMyCarResponse": {
+            "type": "object",
+            "properties": {
+                "locations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pkg.CarLocation"
+                    }
+                },
+                "response_code": {
+                    "type": "integer"
                 }
             }
         },
@@ -1334,6 +1785,14 @@ const docTemplate = `{
                 },
                 "zone_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "pkg.PictureResponse": {
+            "type": "object",
+            "properties": {
+                "image_data": {
+                    "type": "string"
                 }
             }
         },
@@ -1403,6 +1862,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.TokenResponseTest": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "token_type": {
                     "type": "string"
                 }
             }

@@ -10,7 +10,7 @@ import (
 
 type Camera struct {
 	bun.BaseModel `json:"-" bun:"table:camera"`
-	ID            int                    `bun:"id,autoincrement" json:"ID"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
 	CamName       string                 `bun:"cam_name" json:"cam_name" binding:"required"`
 	CamType       string                 `bun:"cam_type" json:"cam_type" binding:"required"`
 	CamIP         string                 `bun:"cam_ip" json:"cam_ip" binding:"required"`
@@ -25,7 +25,7 @@ type Camera struct {
 
 type ResponseCamera struct {
 	bun.BaseModel `json:"-" bun:"table:camera"`
-	ID            int    `bun:"id,autoincrement"`
+	ID            int    `bun:"id,pk,autoincrement"`
 	CamName       string `bun:"cam_name"`
 	CamType       string `bun:"cam_type"`
 	CamIP         string `bun:"cam_ip"`

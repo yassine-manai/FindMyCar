@@ -10,7 +10,7 @@ import (
 
 type ImageZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
-	ID            int                    `bun:"id,autoincrement" json:"ID"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
 	ZoneID        int                    `bun:"zone_id" json:"zone_id" binding:"required"`
 	Lang          string                 `bun:"lang" json:"lang" binding:"required"`
 	ImageSm       []byte                 `bun:"image_s" json:"image_s" binding:"required"`
@@ -20,7 +20,7 @@ type ImageZone struct {
 
 type ResponseImageZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
-	ID            int    `bun:"id,autoincrement"`
+	ID            int    `bun:"id,pk,autoincrement"`
 	ZoneID        int    `bun:"zone_id"`
 	Lang          string `bun:"lang"`
 	ImageSm       []byte `bun:"image_s"`

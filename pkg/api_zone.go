@@ -82,6 +82,43 @@ func (api *ZoneAPI) GetZones(c *gin.Context) {
 	c.JSON(http.StatusOK, zoo)
 }
 
+// GetZoneByID godoc
+//
+//	@Summary		Get zone by ID
+//	@Description	Get a specific zone by ID
+//	@Tags			Zones
+//	@Produce		json
+//	@Param			id	path		int	true	"Zone ID"
+//	@Success		200	{object}	Zone
+//	@Router			/fyc/zones/{id} [get]
+func (api *ZoneAPI) GetZoneByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Invalid Zone ID format")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid ID format",
+			"message": "Zone ID must be a valid integer",
+			"code":    12,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	zone, err := api.ZoneService.GetZoneByID(ctx, id)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Error retrieving Zone by ID")
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "Zone not found",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, zone)
+}
+
 // CreateZone godoc
 //
 //	@Summary		Add a new zone
@@ -94,6 +131,7 @@ func (api *ZoneAPI) GetZones(c *gin.Context) {
 //	@Router			/fyc/zones [post]
 func (api *ZoneAPI) CreateZone(c *gin.Context) {
 	var zone Zone
+	ctx := context.Background()
 
 	if err := c.ShouldBindJSON(&zone); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -104,8 +142,18 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
-	// Insert the new car into the database
+	/* 	if cp, err := cp.CarparkService.GetCarparkByID(ctx, zone.ID); err != nil {
+		log.Err(err).Msg("Carpark with value  not found")
+		fmt.Printf("Carpark %v not found", cp.ID)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to create a new zone",
+			"message": err.Error(),
+			"code":    10,
+		})
+		return
+	} */
+
+	// Insert the new zone into the database
 	if err := api.ZoneService.CreateZone(ctx, &zone); err != nil {
 		log.Err(err).Msg("Error creating new zone")
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -4,6 +4,18 @@ definitions:
       time.Time:
         type: string
     type: object
+  pkg.ApiManage:
+    properties:
+      clientID:
+        type: string
+      clientSecret:
+        type: string
+      fuzzy:
+        type: string
+    required:
+    - clientSecret
+    - fuzzy
+    type: object
   pkg.Camera:
     properties:
       ID:
@@ -70,6 +82,15 @@ definitions:
     - image2
     - image3
     type: object
+  pkg.CarLocation:
+    properties:
+      facility:
+        type: string
+      picture_name:
+        type: string
+      spot_id:
+        type: string
+    type: object
   pkg.Carpark:
     properties:
       capacity:
@@ -92,6 +113,15 @@ definitions:
     - language
     - name
     - type
+    type: object
+  pkg.FindMyCarResponse:
+    properties:
+      locations:
+        items:
+          $ref: '#/definitions/pkg.CarLocation'
+        type: array
+      response_code:
+        type: integer
     type: object
   pkg.ImageZone:
     properties:
@@ -118,6 +148,11 @@ definitions:
     - image_s
     - lang
     - zone_id
+    type: object
+  pkg.PictureResponse:
+    properties:
+      image_data:
+        type: string
     type: object
   pkg.PresentCar:
     properties:
@@ -168,6 +203,15 @@ definitions:
       token:
         type: string
     type: object
+  pkg.TokenResponseTest:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
   pkg.Zone:
     properties:
       ID:
@@ -202,6 +246,44 @@ info:
   title: Find Your Car
   version: "1.0"
 paths:
+  /findmycar:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Find a car using the license plate number --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        Valid LICENCE PLATE : ABCD ---
+      parameters:
+      - description: License Plate
+        in: query
+        name: license_plate
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: string
+      - description: Fuzzy Logic
+        in: query
+        name: fuzzy_logic
+        required: true
+        type: boolean
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.FindMyCarResponse'
+      summary: Find a car by license plate
+      tags:
+      - Car Location
   /fyc/cameras:
     get:
       description: Get a list of all cameras
@@ -294,6 +376,24 @@ paths:
             additionalProperties: true
             type: object
       summary: Delete a camera by ID
+      tags:
+      - Cameras
+    get:
+      description: Get a specific camera by ID
+      parameters:
+      - description: Camera ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Camera'
+      summary: Get camera by ID
       tags:
       - Cameras
     put:
@@ -405,6 +505,24 @@ paths:
             additionalProperties: true
             type: object
       summary: Delete a car detail
+      tags:
+      - Car Details
+    get:
+      description: Get a specific carDetail by ID
+      parameters:
+      - description: CarDetail ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.CarDetail'
+      summary: Get cardetail by ID
       tags:
       - Car Details
     put:
@@ -545,6 +663,108 @@ paths:
       summary: Update a carpark
       tags:
       - Carparks
+  /fyc/clientCreds:
+    get:
+      description: Get a list of all client credentials
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.ApiManage'
+            type: array
+      summary: Get all client credentials
+      tags:
+      - Client Credentials
+    post:
+      consumes:
+      - application/json
+      description: Add a new client credential to the database
+      parameters:
+      - description: Client credential data
+        in: body
+        name: clientCred
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.ApiManage'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.ApiManage'
+      summary: Add a new client credential
+      tags:
+      - Client Credentials
+  /fyc/clientCreds/{id}:
+    delete:
+      description: Delete a client credential by ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Client credential deleted successfully
+          schema:
+            type: string
+      summary: Delete a client credential
+      tags:
+      - Client Credentials
+    get:
+      description: Get a specific client credential by ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: client_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ApiManage'
+      summary: Get client credential by ID
+      tags:
+      - Client Credentials
+    put:
+      consumes:
+      - application/json
+      description: Update an existing client credential by ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated client credential data
+        in: body
+        name: clientCred
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.ApiManage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ApiManage'
+      summary: Update a client credential
+      tags:
+      - Client Credentials
   /fyc/presentcars:
     get:
       description: Get a list of all present cars
@@ -759,7 +979,7 @@ paths:
             type: string
       summary: Generate a JWT token
       tags:
-      - Token
+      - Test_Version1
   /fyc/zones:
     get:
       description: Get a list of all zones
@@ -827,6 +1047,24 @@ paths:
             additionalProperties: true
             type: object
       summary: Delete a zone
+      tags:
+      - Zones
+    get:
+      description: Get a specific zone by ID
+      parameters:
+      - description: Zone ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Zone'
+      summary: Get zone by ID
       tags:
       - Zones
     put:
@@ -934,6 +1172,24 @@ paths:
       summary: Delete a zone image
       tags:
       - Zones Image
+    get:
+      description: Get a specific zoneimage by ID
+      parameters:
+      - description: ZoneImage ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ImageZone'
+      summary: Get zoneimage by ID
+      tags:
+      - Zones Image
     put:
       consumes:
       - application/json
@@ -970,4 +1226,66 @@ paths:
       summary: Update a zone image by ID
       tags:
       - Zones Image
+  /getpicture:
+    get:
+      description: Get an image using the picture name --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+      parameters:
+      - description: Picture Name
+        in: query
+        name: picture_name
+        required: true
+        type: string
+      - description: Language
+        in: query
+        name: language
+        required: true
+        type: string
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.PictureResponse'
+      summary: Get a picture by picture name
+      tags:
+      - Car Location
+  /token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: |-
+        Get an access token using client credentials
+        Valide PARAMS ---------- Client ID : 6 / Client Secret : 4711 / grant_type : client_credentials
+      parameters:
+      - description: Client ID
+        in: formData
+        name: client_id
+        required: true
+        type: string
+      - description: Client Secret
+        in: formData
+        name: client_secret
+        required: true
+        type: string
+      - description: Grant Type
+        in: formData
+        name: grant_type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.TokenResponseTest'
+      summary: Get an access token
+      tags:
+      - Car Location
 swagger: "2.0"

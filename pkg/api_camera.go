@@ -85,6 +85,43 @@ func (api *CameraAPI) GetCamera(c *gin.Context) {
 	c.JSON(http.StatusOK, cam)
 }
 
+// GetCameraByID godoc
+//
+//	@Summary		Get camera by ID
+//	@Description	Get a specific camera by ID
+//	@Tags			Cameras
+//	@Produce		json
+//	@Param			id	path		int	true	"Camera ID"
+//	@Success		200	{object}	Camera
+//	@Router			/fyc/cameras/{id} [get]
+func (api *CameraAPI) GetCameraByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Invalid carpark ID format")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid ID format",
+			"message": "Carpark ID must be a valid integer",
+			"code":    12,
+		})
+		return
+	}
+
+	ctx := context.Background()
+	caemraid, err := api.CameraService.GetCameraByID(ctx, id)
+	if err != nil {
+		log.Err(err).Str("id", idStr).Msg("Error retrieving camera by ID")
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "Camera not found",
+			"code":    9,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, caemraid)
+}
+
 // CreateCamera godoc
 //
 //	@Summary		Add a new camera

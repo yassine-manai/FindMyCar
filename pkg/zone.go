@@ -10,8 +10,8 @@ import (
 
 type Zone struct {
 	bun.BaseModel `json:"-" bun:"table:zone"`
-	ID            int                    `bun:"id,autoincrement,omitempty" json:"ID"`
-	ZoneID        int                    `bun:"zone_id,pk" json:"zone_id" binding:"required"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
+	ZoneID        int                    `bun:"zone_id" json:"zone_id" binding:"required"`
 	MaxCapacity   int                    `bun:"max_capacity" json:"max_capacity" binding:"required"`
 	Present       int                    `bun:"present" json:"present" binding:"required"`
 	Name          map[string]interface{} `bun:"name,type:json" json:"name" binding:"required"`
@@ -22,13 +22,13 @@ type Zone struct {
 
 type ResponseZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone"`
-	ID            int                    `bun:"id,autoincrement,omitempty" json:"ID"`
-	ZoneID        int                    `bun:"zone_id,pk" json:"zone_id"`
-	MaxCapacity   int                    `bun:"max_capacity" json:"max_capacity"`
-	Present       int                    `bun:"present" json:"present"`
-	Name          map[string]interface{} `bun:"name" json:"name"`
-	Description   string                 `bun:"description" json:"description"`
-	CarParkID     int                    `bun:"carpark_id" json:"carpark_id"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
+	ZoneID        int                    `bun:"zone_id"`
+	MaxCapacity   int                    `bun:"max_capacity"`
+	Present       int                    `bun:"present"`
+	Name          map[string]interface{} `bun:"name"`
+	Description   string                 `bun:"description"`
+	CarParkID     int                    `bun:"carpark_id"`
 }
 
 type ZoneOp struct {
