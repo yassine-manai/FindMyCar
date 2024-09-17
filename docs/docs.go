@@ -62,7 +62,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.FindMyCarResponsev3"
+                            "$ref": "#/definitions/pkg.FindMyCarResponse"
                         }
                     }
                 }
@@ -1004,64 +1004,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/fyc/v1": {
-            "get": {
-                "description": "Get car information based on LPN, language, and fuzzy logic",
-                "tags": [
-                    "Test_Version1"
-                ],
-                "summary": "Get car information",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "License Plate Number",
-                        "name": "LPN",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Language (EN, AR, etc.)",
-                        "name": "L",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Fuzzy logic setting (On/Off)",
-                        "name": "FuzzyLogic",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/fyc/v1/Auth/token": {
             "post": {
                 "description": "Generates a JWT token using client ID and client secret.",
@@ -1519,7 +1461,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.PictureResponsev3"
+                            "$ref": "#/definitions/pkg.PictureResponse"
                         }
                     }
                 }
@@ -1565,7 +1507,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.TokenResponseTestv3"
+                            "$ref": "#/definitions/pkg.TokenResponseTest"
                         }
                     }
                 }
@@ -1573,14 +1515,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "config.CustomDate": {
-            "type": "object",
-            "properties": {
-                "time.Time": {
-                    "type": "string"
-                }
-            }
-        },
         "pkg.ApiManage": {
             "type": "object",
             "required": [
@@ -1705,20 +1639,6 @@ const docTemplate = `{
                 }
             }
         },
-        "pkg.CarLocationv3": {
-            "type": "object",
-            "properties": {
-                "facility": {
-                    "type": "string"
-                },
-                "picture_name": {
-                    "type": "string"
-                },
-                "spot_id": {
-                    "type": "string"
-                }
-            }
-        },
         "pkg.Carpark": {
             "type": "object",
             "required": [
@@ -1758,20 +1678,6 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/pkg.CarLocation"
-                    }
-                },
-                "response_code": {
-                    "type": "integer"
-                }
-            }
-        },
-        "pkg.FindMyCarResponsev3": {
-            "type": "object",
-            "properties": {
-                "locations": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/pkg.CarLocationv3"
                     }
                 },
                 "response_code": {
@@ -1824,14 +1730,6 @@ const docTemplate = `{
                 }
             }
         },
-        "pkg.PictureResponsev3": {
-            "type": "object",
-            "properties": {
-                "image_data": {
-                    "type": "string"
-                }
-            }
-        },
         "pkg.PresentCar": {
             "type": "object",
             "required": [
@@ -1875,7 +1773,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "transactionDate": {
-                    "$ref": "#/definitions/config.CustomDate"
+                    "type": "string"
                 }
             }
         },
@@ -1903,20 +1801,6 @@ const docTemplate = `{
             }
         },
         "pkg.TokenResponseTest": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "expires_in": {
-                    "type": "integer"
-                },
-                "token_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "pkg.TokenResponseTestv3": {
             "type": "object",
             "properties": {
                 "access_token": {

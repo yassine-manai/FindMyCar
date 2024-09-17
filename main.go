@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmc/config"
 	_ "fmc/docs"
+	"fmc/functions"
 	"fmc/pkg"
 	"fmt"
 
@@ -41,39 +42,33 @@ func main() {
 		fmt.Println(err)
 	}
 
-	_, CarparkError := db.NewCreateTable().Model((*pkg.Carpark)(nil)).IfNotExists().Exec(ctx)
-	if CarparkError != nil {
-		panic(CarparkError)
+	// List of table models to be created
+	models := []interface{}{
+		(*pkg.Carpark)(nil),
+		(*pkg.PresentCar)(nil),
+		(*pkg.Zone)(nil),
+		(*pkg.ImageZone)(nil),
+		(*pkg.Camera)(nil),
+		(*pkg.CarDetail)(nil),
+		(*pkg.ApiManage)(nil),
 	}
 
-	_, PresentCarError := db.NewCreateTable().Model((*pkg.PresentCar)(nil)).IfNotExists().Exec(ctx)
-	if PresentCarError != nil {
-		panic(PresentCarError)
-	}
-	_, ZoneError := db.NewCreateTable().Model((*pkg.Zone)(nil)).IfNotExists().Exec(ctx)
-	if ZoneError != nil {
-		panic(ZoneError)
+	// Call the CreateTables function to create all tables
+	if err := functions.CreateTables(ctx, db, models); err != nil {
+		fmt.Printf("Failed to create tables: %v", err)
 	}
 
-	_, ZoneImageError := db.NewCreateTable().Model((*pkg.ImageZone)(nil)).IfNotExists().Exec(ctx)
-	if ZoneImageError != nil {
-		panic(ZoneImageError)
-	}
+	fmt.Println("Tables created successfully")
+	log.Debug().Msgf("-------------------------------- # VALUES START # ------------------------------")
 
-	_, CameraError := db.NewCreateTable().Model((*pkg.Camera)(nil)).IfNotExists().Exec(ctx)
-	if CameraError != nil {
-		panic(CameraError)
-	}
+	pkg.Loadzonelist(db)
+	pkg.LoadCarparklist(db)
+	pkg.LoadCameralist(db)
 
-	_, CarDetailError := db.NewCreateTable().Model((*pkg.CarDetail)(nil)).IfNotExists().Exec(ctx)
-	if CarDetailError != nil {
-		panic(CarDetailError)
-	}
-
-	_, ClientCredError := db.NewCreateTable().Model((*pkg.ApiManage)(nil)).IfNotExists().Exec(ctx)
-	if ClientCredError != nil {
-		panic(ClientCredError)
-	}
+	fmt.Println(len(pkg.Zonelist))
+	fmt.Println(len(pkg.CarParkList))
+	fmt.Println(len(pkg.CameraList))
+	log.Debug().Msgf("-------------------------------- # VALUES END # ------------------------------")
 
 	r := pkg.SetupRouter(db)
 

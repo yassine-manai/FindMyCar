@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  fyc:
+    image: yassinemanai/go_fmc:1.2
+    container_name: gofyc
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8600
+      DB_HOST: fycdb
+      DB_PORT: 5432
+      DB_USER: fycastero
+      DB_PASSWORD: asteroidea4711!
+      DB_NAME: fyc
+      JWT_SECRET: fmc4711
+    restart: unless-stopped
+    ports:
+      - "8600:8600"
+  fycdb:
+    image: postgres:16-alpine
+    container_name: fycdb
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: fycastero
+      POSTGRES_PASSWORD: asteroidea4711!
+    restart: unless-stopped
+    ports:
+      - "172.17.0.1:5433:5432"
+    volumes:
+      - /data/fyc/database_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

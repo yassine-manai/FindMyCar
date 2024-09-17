@@ -63,7 +63,6 @@ var carLocationsAR = []CarLocation{
 	},
 }
 
-// Helper function to check if the token is valid
 func checkToken(c *gin.Context) bool {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {

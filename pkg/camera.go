@@ -17,8 +17,8 @@ type Camera struct {
 	CamPORT       string                 `bun:"cam_port" json:"cam_port" binding:"required"`
 	CamUser       string                 `bun:"cam_user" json:"cam_user" binding:"required"`
 	CamPass       string                 `bun:"cam_password" json:"cam_password" binding:"required"`
-	ZoneIdIn      int                    `bun:"zone_id_in" json:"zone_id_in" binding:"required"`
-	ZoneIdOut     int                    `bun:"zone_id_out" json:"zone_id_out" binding:"required"`
+	ZoneIdIn      *int                   `bun:"zone_id_in" json:"zone_id_in" binding:"required"`
+	ZoneIdOut     *int                   `bun:"zone_id_out" json:"zone_id_out" binding:"required"`
 	Direction     string                 `bun:"direction" json:"direction" binding:"required"`
 	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
 }
@@ -32,25 +32,15 @@ type ResponseCamera struct {
 	CamPORT       string `bun:"cam_port" `
 	CamUser       string `bun:"cam_user" `
 	CamPass       string `bun:"cam_password" `
-	ZoneIdIn      int    `bun:"zone_id_in" `
-	ZoneIdOut     int    `bun:"zone_id_out" `
+	ZoneIdIn      *int   `bun:"zone_id_in" `
+	ZoneIdOut     *int   `bun:"zone_id_out" `
 	Direction     string `bun:"direction" `
 }
 
-type CameraOp struct {
-	DB *bun.DB
-}
-
-func NewCamera(db *bun.DB) *CameraOp {
-	return &CameraOp{
-		DB: db,
-	}
-}
-
 // Get all camera with extra data
-func (camop *CameraOp) GetAllCameraExtra(ctx context.Context) ([]Camera, error) {
+func GetAllCameraExtra(ctx context.Context, db *bun.DB) ([]Camera, error) {
 	var camera []Camera
-	err := camop.DB.NewSelect().Model(&camera).Column().Scan(ctx)
+	err := db.NewSelect().Model(&camera).Column().Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Camera with Extra Data: %w", err)
 	}
@@ -58,9 +48,9 @@ func (camop *CameraOp) GetAllCameraExtra(ctx context.Context) ([]Camera, error) 
 }
 
 // Get all camera
-func (camop *CameraOp) GetAllCamera(ctx context.Context) ([]ResponseCamera, error) {
+func GetAllCamera(ctx context.Context, db *bun.DB) ([]ResponseCamera, error) {
 	var cam []ResponseCamera
-	err := camop.DB.NewSelect().Model(&cam).Scan(ctx)
+	err := db.NewSelect().Model(&cam).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all cameras : %w", err)
 	}
@@ -68,9 +58,9 @@ func (camop *CameraOp) GetAllCamera(ctx context.Context) ([]ResponseCamera, erro
 }
 
 // Gt camera by id
-func (camop *CameraOp) GetCameraByID(ctx context.Context, id int) (*Camera, error) {
+func GetCameraByID(ctx context.Context, db *bun.DB, id int) (*Camera, error) {
 	cm := new(Camera)
-	err := camop.DB.NewSelect().Model(cm).Where("id = ?", id).Scan(ctx)
+	err := db.NewSelect().Model(cm).Where("id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting camera by id : %w", err)
 	}
@@ -78,9 +68,9 @@ func (camop *CameraOp) GetCameraByID(ctx context.Context, id int) (*Camera, erro
 }
 
 // create a new camera
-func (camop *CameraOp) CreateCamera(ctx context.Context, newcam *Camera) error {
+func CreateCamera(ctx context.Context, db *bun.DB, newcam *Camera) error {
 	// Insert and get the auto-generated ID from the database
-	_, err := camop.DB.NewInsert().Model(newcam).Returning("id").Exec(ctx)
+	_, err := db.NewInsert().Model(newcam).Returning("id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating a camera : %w", err)
 	}
@@ -90,8 +80,8 @@ func (camop *CameraOp) CreateCamera(ctx context.Context, newcam *Camera) error {
 }
 
 // Update a camera by ID
-func (camop *CameraOp) UpdateCamera(ctx context.Context, cam_id int, updates *Camera) (int64, error) {
-	res, err := camop.DB.NewUpdate().Model(updates).Where("zone_id = ?", cam_id).ExcludeColumn("id").Exec(ctx)
+func UpdateCamera(ctx context.Context, db *bun.DB, cam_id int, updates *Camera) (int64, error) {
+	res, err := db.NewUpdate().Model(updates).Where("zone_id = ?", cam_id).ExcludeColumn("id").Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating camera with id %d: %w", cam_id, err)
 	}
@@ -103,8 +93,8 @@ func (camop *CameraOp) UpdateCamera(ctx context.Context, cam_id int, updates *Ca
 }
 
 // Delete a zone img by ID
-func (camop *CameraOp) DeleteCamera(ctx context.Context, id int) (int64, error) {
-	res, err := camop.DB.NewDelete().Model(&Camera{}).Where("ID = ?", id).Exec(ctx)
+func DeleteCamera(ctx context.Context, db *bun.DB, id int) (int64, error) {
+	res, err := db.NewDelete().Model(&Camera{}).Where("ID = ?", id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting Camera with id %d: %w", id, err)
 	}

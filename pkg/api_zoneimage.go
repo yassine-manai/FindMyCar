@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmc/functions"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -12,16 +13,6 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type ZoneImageAPI struct {
-	ZoneImageService *ImageZoneOp
-}
-
-func NewZoneImageAPI(db *bun.DB) *ZoneImageAPI {
-	return &ZoneImageAPI{
-		ZoneImageService: NewImageZone(db),
-	}
-}
-
 // GetZonesImages godoc
 //
 //	@Summary		Get all zones image
@@ -31,12 +22,12 @@ func NewZoneImageAPI(db *bun.DB) *ZoneImageAPI {
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{array}		ImageZone
 //	@Router			/fyc/zonesImage [get]
-func (api *ZoneImageAPI) GetImageZones(c *gin.Context) {
+func GetImageZonesAPI(c *gin.Context, db *bun.DB) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		zonesImage, err := api.ZoneImageService.GetAllZoneImageExtra(ctx)
+		zonesImage, err := GetAllZoneImageExtra(ctx, db)
 		if err != nil {
 			log.Err(err).Msg("Error getting all zones image  with extra data ")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -60,7 +51,7 @@ func (api *ZoneImageAPI) GetImageZones(c *gin.Context) {
 		return
 	}
 
-	zoimg, err := api.ZoneImageService.GetAllZone(ctx)
+	zoimg, err := GetAllZoneImage(ctx, db)
 	if err != nil {
 		log.Err(err).Msg("Error getting all zones images")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -92,7 +83,7 @@ func (api *ZoneImageAPI) GetImageZones(c *gin.Context) {
 //	@Param			id	path		int	true	"ZoneImage ID"
 //	@Success		200	{object}	ImageZone
 //	@Router			/fyc/zonesImage/{id} [get]
-func (api *ZoneImageAPI) GetZoneImageByID(c *gin.Context) {
+func GetZoneImageByIDAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -106,7 +97,7 @@ func (api *ZoneImageAPI) GetZoneImageByID(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	zoneimage, err := api.ZoneImageService.GetZoneImageByID(ctx, id)
+	zoneimage, err := GetZoneImageByID(ctx, db, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving zoneimage by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -130,7 +121,7 @@ func (api *ZoneImageAPI) GetZoneImageByID(c *gin.Context) {
 //	@Param			ImageZone	body		ImageZone	true	"Zone image data"
 //	@Success		201		{object}	ImageZone
 //	@Router			/fyc/zonesImage [post]
-func (api *ZoneImageAPI) CreateZoneImage(c *gin.Context) {
+func CreateZoneImageAPI(c *gin.Context, db *bun.DB) {
 	var zoneImage ImageZone
 	ctx := context.Background()
 
@@ -143,18 +134,18 @@ func (api *ZoneImageAPI) CreateZoneImage(c *gin.Context) {
 		return
 	}
 
-	ZoneService := NewZone(api.ZoneImageService.DB)
-	_, errup := ZoneService.GetZoneByID(ctx, zoneImage.ZoneID)
-	if errup != nil {
+	if !functions.Contains(Zonelist, *zoneImage.ZoneID) {
+		log.Debug().Msg("Zone not found")
+
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Zone not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", zoneImage.ZoneID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
-	if err := api.ZoneImageService.CreateZoneImage(ctx, &zoneImage); err != nil {
+	if err := CreateZoneImage(ctx, db, &zoneImage); err != nil {
 		log.Err(err).Msg("Error creating new zone image")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new zone image",
@@ -180,7 +171,7 @@ func (api *ZoneImageAPI) CreateZoneImage(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone image not found"
 //	@Router			/fyc/zonesImage/{id} [put]
-func (api *ZoneImageAPI) UpdateZoneImageById(c *gin.Context) {
+func UpdateZoneImageByIdAPI(c *gin.Context, db *bun.DB) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -205,7 +196,7 @@ func (api *ZoneImageAPI) UpdateZoneImageById(c *gin.Context) {
 		return
 	}
 
-	if updates.ZoneID != id {
+	if *updates.ZoneID != id {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "ID mismatch",
 			"message": "The ID in the request body does not match the param ID",
@@ -214,19 +205,19 @@ func (api *ZoneImageAPI) UpdateZoneImageById(c *gin.Context) {
 		return
 	}
 
-	ZoneService := NewZone(api.ZoneImageService.DB)
-	_, errup := ZoneService.GetZoneByID(ctx, updates.ZoneID)
-	if errup != nil {
+	if !functions.Contains(Zonelist, *updates.ZoneID) {
+		log.Debug().Msg("Zone not found")
+
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Zone not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.ZoneID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
 	// Call the service to update the present car
-	rowsAffected, err := api.ZoneImageService.UpdateZoneImage(ctx, id, &updates)
+	rowsAffected, err := UpdateZoneImage(ctx, db, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone image by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -264,7 +255,7 @@ func (api *ZoneImageAPI) UpdateZoneImageById(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone image not found"
 //	@Router			/fyc/zonesImage/{id} [delete]
-func (api *ZoneImageAPI) DeleteZoneImage(c *gin.Context) {
+func DeleteZoneImageAPI(c *gin.Context, db *bun.DB) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -278,7 +269,7 @@ func (api *ZoneImageAPI) DeleteZoneImage(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.ZoneImageService.DeleteZoneImage(ctx, id)
+	rowsAffected, err := DeleteZoneImage(ctx, db, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting zone image")
 		c.JSON(http.StatusInternalServerError, gin.H{

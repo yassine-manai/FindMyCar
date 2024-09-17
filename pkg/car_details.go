@@ -27,20 +27,10 @@ type ResponseCarDetail struct {
 	Image3        []byte                 `bun:"image3" json:"image3"`
 }
 
-type CarDetailOp struct {
-	DB *bun.DB
-}
-
-func NewCarDetail(db *bun.DB) *CarDetailOp {
-	return &CarDetailOp{
-		DB: db,
-	}
-}
-
 // Get all car details with extra data
-func (carop *CarDetailOp) GetAllCarDetailExtra(ctx context.Context) ([]CarDetail, error) {
+func GetAllCarDetailExtra(ctx context.Context, db *bun.DB) ([]CarDetail, error) {
 	var cars []CarDetail
-	err := carop.DB.NewSelect().Model(&cars).Scan(ctx)
+	err := db.NewSelect().Model(&cars).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all car details with extra data: %w", err)
 	}
@@ -48,9 +38,9 @@ func (carop *CarDetailOp) GetAllCarDetailExtra(ctx context.Context) ([]CarDetail
 }
 
 // Get all car details
-func (carop *CarDetailOp) GetAllCarDetail(ctx context.Context) ([]ResponseCarDetail, error) {
+func GetAllCarDetail(ctx context.Context, db *bun.DB) ([]ResponseCarDetail, error) {
 	var cars []ResponseCarDetail
-	err := carop.DB.NewSelect().Model(&cars).Scan(ctx)
+	err := db.NewSelect().Model(&cars).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all car details: %w", err)
 	}
@@ -58,9 +48,9 @@ func (carop *CarDetailOp) GetAllCarDetail(ctx context.Context) ([]ResponseCarDet
 }
 
 // Get car detail by ID
-func (carop *CarDetailOp) GetCarDetailByID(ctx context.Context, id int) (*CarDetail, error) {
+func GetCarDetailByID(ctx context.Context, db *bun.DB, id int) (*CarDetail, error) {
 	car := new(CarDetail)
-	err := carop.DB.NewSelect().Model(car).Where("id = ?", id).Scan(ctx)
+	err := db.NewSelect().Model(car).Where("id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting car detail by ID: %w", err)
 	}
@@ -68,9 +58,9 @@ func (carop *CarDetailOp) GetCarDetailByID(ctx context.Context, id int) (*CarDet
 }
 
 // Create a new car detail
-func (carop *CarDetailOp) CreateCarDetail(ctx context.Context, newCar *CarDetail) error {
+func CreateCarDetail(ctx context.Context, db *bun.DB, newCar *CarDetail) error {
 	// Insert and get the auto-generated ID from the database
-	_, err := carop.DB.NewInsert().Model(newCar).Returning("id").Exec(ctx)
+	_, err := db.NewInsert().Model(newCar).Returning("id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating car detail: %w", err)
 	}
@@ -80,8 +70,8 @@ func (carop *CarDetailOp) CreateCarDetail(ctx context.Context, newCar *CarDetail
 }
 
 // Update a car detail by ID
-func (carop *CarDetailOp) UpdateCarDetail(ctx context.Context, carID int, updates *CarDetail) (int64, error) {
-	res, err := carop.DB.NewUpdate().Model(updates).Where("id = ?", carID).ExcludeColumn("id").Exec(ctx)
+func UpdateCarDetail(ctx context.Context, db *bun.DB, carID int, updates *CarDetail) (int64, error) {
+	res, err := db.NewUpdate().Model(updates).Where("id = ?", carID).ExcludeColumn("id").Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating car detail with ID %d: %w", carID, err)
 	}
@@ -93,8 +83,8 @@ func (carop *CarDetailOp) UpdateCarDetail(ctx context.Context, carID int, update
 }
 
 // Delete a car detail by ID
-func (carop *CarDetailOp) DeleteCarDetail(ctx context.Context, id int) (int64, error) {
-	res, err := carop.DB.NewDelete().Model(&CarDetail{}).Where("id = ?", id).Exec(ctx)
+func DeleteCarDetail(ctx context.Context, db *bun.DB, id int) (int64, error) {
+	res, err := db.NewDelete().Model(&CarDetail{}).Where("id = ?", id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting car detail with ID %d: %w", id, err)
 	}

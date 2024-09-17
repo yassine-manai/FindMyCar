@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmc/functions"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -12,16 +13,6 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type ZoneAPI struct {
-	ZoneService *ZoneOp
-}
-
-func NewZoneAPI(db *bun.DB) *ZoneAPI {
-	return &ZoneAPI{
-		ZoneService: NewZone(db),
-	}
-}
-
 // GetZones godoc
 //
 //	@Summary		Get all zones
@@ -31,12 +22,12 @@ func NewZoneAPI(db *bun.DB) *ZoneAPI {
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{array}		Zone
 //	@Router			/fyc/zones [get]
-func (api *ZoneAPI) GetZones(c *gin.Context) {
+func GetZonesAPI(c *gin.Context, db *bun.DB) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		zones, err := api.ZoneService.GetAllZoneExtra(ctx)
+		zones, err := GetAllZoneExtra(ctx, db)
 		if err != nil {
 			log.Err(err).Msg("Error getting all zones with extra data ")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -60,7 +51,7 @@ func (api *ZoneAPI) GetZones(c *gin.Context) {
 		return
 	}
 
-	zoo, err := api.ZoneService.GetAllZone(ctx)
+	zoo, err := GetAllZone(ctx, db)
 	if err != nil {
 		log.Err(err).Msg("Error getting all zones")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -92,7 +83,7 @@ func (api *ZoneAPI) GetZones(c *gin.Context) {
 //	@Param			id	path		int	true	"Zone ID"
 //	@Success		200	{object}	Zone
 //	@Router			/fyc/zones/{id} [get]
-func (api *ZoneAPI) GetZoneByID(c *gin.Context) {
+func GetZoneByIDAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -106,7 +97,7 @@ func (api *ZoneAPI) GetZoneByID(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	zone, err := api.ZoneService.GetZoneByID(ctx, id)
+	zone, err := GetZoneByID(ctx, db, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving Zone by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -130,7 +121,7 @@ func (api *ZoneAPI) GetZoneByID(c *gin.Context) {
 //	@Param			zone	body		Zone	true	"Zone data"
 //	@Success		201		{object}	Zone
 //	@Router			/fyc/zones [post]
-func (api *ZoneAPI) CreateZone(c *gin.Context) {
+func CreateZoneAPI(c *gin.Context, db *bun.DB) {
 	var zone Zone
 	ctx := context.Background()
 
@@ -144,20 +135,16 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 		return
 	}
 
-	carparkService := NewCarpark(api.ZoneService.DB)
-	_, err := carparkService.GetCarparkByID(ctx, zone.CarParkID)
-	if err != nil {
-		// Carpark does not exist, return a 404 Not Found error
+	if !functions.Contains(CarParkList, *zone.CarParkID) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Carpark not found",
-			"message": fmt.Sprintf("Carpark with ID %d does not exist", zone.CarParkID),
-			"code":    14,
+			"message": fmt.Sprintf("Carpark with ID %d is not found", *zone.CarParkID),
+			"code":    9,
 		})
 		return
 	}
 
-	// Insert the new zone into the database
-	if err := api.ZoneService.CreateZone(ctx, &zone); err != nil {
+	if err := CreateZone(ctx, db, &zone); err != nil {
 		log.Err(err).Msg("Error creating new zone")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new zone",
@@ -196,7 +183,7 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone not found"
 //	@Router			/fyc/zones/{id} [put]
-func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
+func UpdateZoneIdAPI(c *gin.Context, db *bun.DB) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -221,7 +208,7 @@ func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
 		return
 	}
 
-	if updates.ZoneID != id {
+	if *updates.ZoneID != id {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "ID mismatch",
 			"message": "The ID in the request body does not match the param ID",
@@ -230,20 +217,17 @@ func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
 		return
 	}
 
-	carparkService := NewCarpark(api.ZoneService.DB)
-	_, errup := carparkService.GetCarparkByID(ctx, updates.CarParkID)
-	if errup != nil {
-		// Carpark does not exist, return a 404 Not Found error
+	if !functions.Contains(CarParkList, *updates.CarParkID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Carpark not found",
+			"error":   "Carpark not found ",
 			"message": fmt.Sprintf("Carpark with ID %d does not exist", updates.CarParkID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
 	// Call the service to update the present car
-	rowsAffected, err := api.ZoneService.UpdateZone(ctx, id, &updates)
+	rowsAffected, err := UpdateZone(ctx, db, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -281,7 +265,7 @@ func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone not found"
 //	@Router			/fyc/zones/{id} [delete]
-func (api *ZoneAPI) DeleteZone(c *gin.Context) {
+func DeleteZoneAPI(c *gin.Context, db *bun.DB) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -295,7 +279,7 @@ func (api *ZoneAPI) DeleteZone(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.ZoneService.DeleteZone(ctx, id)
+	rowsAffected, err := DeleteZone(ctx, db, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting Zone")
 		c.JSON(http.StatusInternalServerError, gin.H{

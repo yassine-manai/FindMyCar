@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmc/functions"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,16 +12,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/uptrace/bun"
 )
-
-type PresentCarAPI struct {
-	PresentCarService *PresentCarOp
-}
-
-func NewPresentCarAPI(db *bun.DB) *PresentCarAPI {
-	return &PresentCarAPI{
-		PresentCarService: NewPresent(db),
-	}
-}
 
 // GetAllPresentCars godoc
 //
@@ -32,12 +23,12 @@ func NewPresentCarAPI(db *bun.DB) *PresentCarAPI {
 //
 // @Success		200	{array}		PresentCar
 // @Router			/fyc/presentcars [get]
-func (api *PresentCarAPI) GetPresentCars(c *gin.Context) {
+func GetPresentCarsAPI(c *gin.Context, db *bun.DB) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		cars, err := api.PresentCarService.GetAllPresentExtra(ctx)
+		cars, err := GetAllPresentExtra(ctx, db)
 		if err != nil {
 			log.Err(err).Msg("Error getting all present cars with extra data ")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -61,7 +52,7 @@ func (api *PresentCarAPI) GetPresentCars(c *gin.Context) {
 		return
 	}
 
-	Pcars, err := api.PresentCarService.GetAllPresentCars(ctx)
+	Pcars, err := GetAllPresentCars(ctx, db)
 	if err != nil {
 		log.Err(err).Msg("Error getting all present cars")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -94,13 +85,13 @@ func (api *PresentCarAPI) GetPresentCars(c *gin.Context) {
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{object}	PresentCar
 //	@Router			/fyc/presentcars/{lpn} [get]
-func (api *PresentCarAPI) GetPresentCarByLPN(c *gin.Context) {
+func GetPresentCarByLPNAPI(c *gin.Context, db *bun.DB) {
 
 	lpn := c.Param("lpn")
 	extra_req := c.Query("extra")
 
 	ctx := context.Background()
-	car, err := api.PresentCarService.GetPresentCarByLPN(ctx, lpn)
+	car, err := GetPresentCarByLPN(ctx, db, lpn)
 	if err != nil {
 		log.Err(err).Str("lpn", lpn).Msg("Error retrieving present car by LPN")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -156,7 +147,7 @@ func (api *PresentCarAPI) GetPresentCarByLPN(c *gin.Context) {
 //	@Param			presentCar	body		PresentCar	true	"Present Car data"
 //	@Success		201		{object}	PresentCar
 //	@Router			/fyc/presentcars [post]
-func (api *PresentCarAPI) CreatePresentCar(c *gin.Context) {
+func CreatePresentCarAPI(c *gin.Context, db *bun.DB) {
 	var car PresentCar
 	ctx := context.Background()
 
@@ -169,40 +160,39 @@ func (api *PresentCarAPI) CreatePresentCar(c *gin.Context) {
 		return
 	}
 
-	ZoneService := NewZone(api.PresentCarService.DB)
-	_, err := ZoneService.GetZoneByID(ctx, car.CurrZoneID)
-	if err != nil {
+	if !functions.Contains(Zonelist, *car.CurrZoneID) {
+		log.Debug().Msg("CurrZoneID not found")
+
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Zone not found",
+			"error":   "CurrZoneID not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", car.CurrZoneID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
-	_, errr := ZoneService.GetZoneByID(ctx, car.LastZoneID)
-	if errr != nil {
+	if !functions.Contains(Zonelist, *car.LastZoneID) {
+		log.Debug().Msg("LastZoneID not found")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Zone not found",
+			"error":   "LastZoneID not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", car.LastZoneID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
-	CamService := NewCamera(api.PresentCarService.DB)
-	_, errCam := CamService.GetCameraByID(ctx, car.CameraID)
-	if errCam != nil {
+	if !functions.Contains(CameraList, *car.CameraID) {
+		log.Debug().Msg("Camera ID not found")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Camera not found",
+			"error":   "Camera ID not found ",
 			"message": fmt.Sprintf("Camera with ID %d does not exist", car.CameraID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
 	// Insert the new car into the database
-	if err := api.PresentCarService.CreatePresentCar(ctx, &car); err != nil {
+	if err := CreatePresentCar(ctx, db, &car); err != nil {
 		log.Err(err).Msg("Error creating present car")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create present car",
@@ -239,7 +229,7 @@ func (api *PresentCarAPI) CreatePresentCar(c *gin.Context) {
 //	@Param			presentCar	body		PresentCar	true	"Updated present car data"
 //	@Success		200		{object}	PresentCar
 //	@Router			/fyc/presentcars/{id} [put]
-func (api *PresentCarAPI) UpdatePresentCarById(c *gin.Context) {
+func UpdatePresentCarByIdAPI(c *gin.Context, db *bun.DB) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -263,8 +253,7 @@ func (api *PresentCarAPI) UpdatePresentCarById(c *gin.Context) {
 		return
 	}
 
-	// Check if the ID in the request body matches the URL ID
-	if updates.ID != id {
+	if *updates.ID != id {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "ID mismatch",
 			"message": "The ID in the request body does not match the ID in the param",
@@ -273,41 +262,39 @@ func (api *PresentCarAPI) UpdatePresentCarById(c *gin.Context) {
 		return
 	}
 
-	ZoneService := NewZone(api.PresentCarService.DB)
-	ctx := context.Background()
-	_, errup := ZoneService.GetZoneByID(ctx, updates.CurrZoneID)
-	if errup != nil {
+	if !functions.Contains(Zonelist, *updates.CurrZoneID) {
+		log.Debug().Msg("CurrZoneID not found")
+
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Current Zone not found",
+			"error":   "CurrZoneID not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.CurrZoneID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
-	_, errr := ZoneService.GetZoneByID(ctx, updates.LastZoneID)
-	if errr != nil {
+	if !functions.Contains(Zonelist, *updates.LastZoneID) {
+		log.Debug().Msg("LastZoneID not found")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Last Zone not found",
+			"error":   "LastZoneID not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.LastZoneID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
-	CamService := NewCamera(api.PresentCarService.DB)
-	_, errCam := CamService.GetCameraByID(ctx, updates.CameraID)
-	if errCam != nil {
+	if !functions.Contains(CameraList, *updates.CameraID) {
+		log.Debug().Msg("Camera ID not found")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Camera not found",
+			"error":   "Camera ID not found ",
 			"message": fmt.Sprintf("Camera with ID %d does not exist", updates.CameraID),
-			"code":    14,
+			"code":    9,
 		})
 		return
 	}
 
 	// Call the service to update the present car
-	rowsAffected, err := api.PresentCarService.UpdatePresentCar(ctx, id, &updates)
+	rowsAffected, err := UpdatePresentCar(ctx, db, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating present car by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -346,7 +333,7 @@ func (api *PresentCarAPI) UpdatePresentCarById(c *gin.Context) {
 //	@Param			presentCar	body		PresentCar	true	"Updated present car data by lpn"
 //	@Success		200		{object}	PresentCar
 //	@Router			/fyc/presentcars [put]
-func (api *PresentCarAPI) UpdatePresentCarBylpn(c *gin.Context) {
+func UpdatePresentCarBylpnAPI(c *gin.Context, db *bun.DB) {
 
 	lpn := c.Query("lpn")
 	log.Info().Msgf("provided parameters :%v", lpn)
@@ -360,8 +347,35 @@ func (api *PresentCarAPI) UpdatePresentCarBylpn(c *gin.Context) {
 		return
 	}
 
+	if !functions.Contains(CarParkList, *updates.CurrZoneID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Carpark not found in CarParkList",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.CurrZoneID),
+			"code":    9,
+		})
+		return
+	}
+
+	if !functions.Contains(CameraList, *updates.LastZoneID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Carpark not found in CarParkList",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.LastZoneID),
+			"code":    9,
+		})
+		return
+	}
+
+	if !functions.Contains(CarParkList, *updates.CameraID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Carpark not found in CarParkList",
+			"message": fmt.Sprintf("Camera with ID %d does not exist", updates.CameraID),
+			"code":    9,
+		})
+		return
+	}
+
 	ctx := context.Background()
-	rowsAffected, err := api.PresentCarService.UpdatePresentCarByLpn(ctx, lpn, &updates)
+	rowsAffected, err := UpdatePresentCarByLpn(ctx, db, lpn, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating present car")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -413,7 +427,7 @@ func (api *PresentCarAPI) UpdatePresentCarBylpn(c *gin.Context) {
 //	@Failure		400			{object}	string	"Bad Request"
 //	@Failure		404			{object}	string	"Not Found"
 //	@Router			/fyc/presentcars/{id} [delete]
-func (api *PresentCarAPI) DeletePresentCar(c *gin.Context) {
+func DeletePresentCarAPI(c *gin.Context, db *bun.DB) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -427,7 +441,7 @@ func (api *PresentCarAPI) DeletePresentCar(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.PresentCarService.DeletePresentCar(ctx, id)
+	rowsAffected, err := DeletePresentCar(ctx, db, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting present car")
 		c.JSON(http.StatusInternalServerError, gin.H{

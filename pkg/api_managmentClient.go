@@ -9,16 +9,6 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type ClientCredAPI struct {
-	ClientCredService *ApiManageOp
-}
-
-func NewClientCredAPI(db *bun.DB) *ClientCredAPI {
-	return &ClientCredAPI{
-		ClientCredService: NewApiManage(db),
-	}
-}
-
 // GetAllClientCreds godoc
 //
 //	@Summary		Get all client credentials
@@ -28,10 +18,10 @@ func NewClientCredAPI(db *bun.DB) *ClientCredAPI {
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200		{array}		ApiManage
 //	@Router			/fyc/clientCreds [get]
-func (api *ClientCredAPI) GetAllClientCredsApi(c *gin.Context) {
+func GetAllClientCredsApi(c *gin.Context, db *bun.DB) {
 	ctx := context.Background()
 
-	clCred, err := api.ClientCredService.GetAllClientCred(ctx)
+	clCred, err := GetAllClientCred(ctx, db)
 	if err != nil {
 		log.Err(err).Msg("Error getting all client credentials")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -65,11 +55,11 @@ func (api *ClientCredAPI) GetAllClientCredsApi(c *gin.Context) {
 //	@Param			client_id	path		string	true	"Client ID"
 //	@Success		200	{object}	ApiManage
 //	@Router			/fyc/clientCreds/{id} [get]
-func (api *ClientCredAPI) GetClientCredByID(c *gin.Context) {
+func GetClientCredByIDAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("client_id")
 
 	ctx := context.Background()
-	clientCred, err := api.ClientCredService.GetClientCredById(ctx, idStr)
+	clientCred, err := GetClientCredById(ctx, db, idStr)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving client credential by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -94,7 +84,7 @@ func (api *ClientCredAPI) GetClientCredByID(c *gin.Context) {
 //	@Param			clientCred	body		ApiManage	true	"Client credential data"
 //	@Success		201	{object}	ApiManage
 //	@Router			/fyc/clientCreds [post]
-func (api *ClientCredAPI) AddClientCred(c *gin.Context) {
+func AddClientCredAPI(c *gin.Context, db *bun.DB) {
 	var clientCred ApiManage
 	if err := c.ShouldBindJSON(&clientCred); err != nil {
 		log.Err(err).Msg("Invalid request payload for client credential creation")
@@ -107,7 +97,7 @@ func (api *ClientCredAPI) AddClientCred(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	if err := api.ClientCredService.AddClientCred(ctx, &clientCred); err != nil {
+	if err := AddClientCred(ctx, db, &clientCred); err != nil {
 		log.Err(err).Msg("Error creating client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create client credential",
@@ -132,7 +122,7 @@ func (api *ClientCredAPI) AddClientCred(c *gin.Context) {
 //	@Param			clientCred	body		ApiManage	true	"Updated client credential data"
 //	@Success		200	{object}	ApiManage
 //	@Router			/fyc/clientCreds/{id} [put]
-func (api *ClientCredAPI) UpdateClientCred(c *gin.Context) {
+func UpdateClientCredAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 
 	var clientCred ApiManage
@@ -157,7 +147,7 @@ func (api *ClientCredAPI) UpdateClientCred(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.ClientCredService.UpdateClientCred(ctx, idStr, &clientCred)
+	rowsAffected, err := UpdateClientCred(ctx, db, idStr, &clientCred)
 	if err != nil {
 		log.Err(err).Msg("Error updating client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -190,11 +180,11 @@ func (api *ClientCredAPI) UpdateClientCred(c *gin.Context) {
 //	@Param			id	path		string	true	"Client ID"
 //	@Success		200	{string}	string	"Client credential deleted successfully"
 //	@Router			/fyc/clientCreds/{id} [delete]
-func (api *ClientCredAPI) DeleteClientCred(c *gin.Context) {
+func DeleteClientCredAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 
 	ctx := context.Background()
-	rowsAffected, err := api.ClientCredService.DeleteClientCred(ctx, idStr)
+	rowsAffected, err := DeleteClientCred(ctx, db, idStr)
 	if err != nil {
 		log.Err(err).Msg("Error deleting client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{

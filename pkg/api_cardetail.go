@@ -11,16 +11,6 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type CarDetailAPI struct {
-	CarDetailService *CarDetailOp
-}
-
-func NewCarDetailAPI(db *bun.DB) *CarDetailAPI {
-	return &CarDetailAPI{
-		CarDetailService: NewCarDetail(db),
-	}
-}
-
 // GetCarDetails godoc
 //
 //	@Summary		Get all car details
@@ -30,12 +20,12 @@ func NewCarDetailAPI(db *bun.DB) *CarDetailAPI {
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200		{array}		CarDetail
 //	@Router			/fyc/carDetails [get]
-func (api *CarDetailAPI) GetCarDetails(c *gin.Context) {
+func GetCarDetailsAPI(c *gin.Context, db *bun.DB) {
 	ctx := context.Background()
 	extraReq := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extraReq) == "true" || strings.ToLower(extraReq) == "1" || strings.ToLower(extraReq) == "yes" {
-		carDetails, err := api.CarDetailService.GetAllCarDetailExtra(ctx)
+		carDetails, err := GetAllCarDetailExtra(ctx, db)
 		if err != nil {
 			log.Err(err).Msg("Error getting all car details with extra data")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -59,7 +49,7 @@ func (api *CarDetailAPI) GetCarDetails(c *gin.Context) {
 		return
 	}
 
-	carDetails, err := api.CarDetailService.GetAllCarDetail(ctx)
+	carDetails, err := GetAllCarDetail(ctx, db)
 	if err != nil {
 		log.Err(err).Msg("Error getting all car details")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -92,7 +82,7 @@ func (api *CarDetailAPI) GetCarDetails(c *gin.Context) {
 //	@Param			CarDetail	body		CarDetail	true	"Car detail data"
 //	@Success		201		{object}	CarDetail
 //	@Router			/fyc/carDetails [post]
-func (api *CarDetailAPI) CreateCarDetail(c *gin.Context) {
+func CreateCarDetailAPI(c *gin.Context, db *bun.DB) {
 	var carDetail CarDetail
 
 	if err := c.ShouldBindJSON(&carDetail); err != nil {
@@ -106,7 +96,7 @@ func (api *CarDetailAPI) CreateCarDetail(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	if err := api.CarDetailService.CreateCarDetail(ctx, &carDetail); err != nil {
+	if err := CreateCarDetail(ctx, db, &carDetail); err != nil {
 		log.Err(err).Msg("Error creating new car detail")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new car detail",
@@ -128,7 +118,7 @@ func (api *CarDetailAPI) CreateCarDetail(c *gin.Context) {
 //	@Param			id	path		int	true	"CarDetail ID"
 //	@Success		200	{object}	CarDetail
 //	@Router			/fyc/carDetails/{id} [get]
-func (api *CarDetailAPI) GetCarDetailsById(c *gin.Context) {
+func GetCarDetailsByIdAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -142,7 +132,7 @@ func (api *CarDetailAPI) GetCarDetailsById(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	carDetail, err := api.CarDetailService.GetCarDetailByID(ctx, id)
+	carDetail, err := GetCarDetailByID(ctx, db, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving carDetail by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -169,7 +159,7 @@ func (api *CarDetailAPI) GetCarDetailsById(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Car detail not found"
 //	@Router			/fyc/carDetails/{id} [put]
-func (api *CarDetailAPI) UpdateCarDetailById(c *gin.Context) {
+func UpdateCarDetailByIdAPI(c *gin.Context, db *bun.DB) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -208,7 +198,7 @@ func (api *CarDetailAPI) UpdateCarDetailById(c *gin.Context) {
 
 	// Call the service to update the car detail
 	ctx := context.Background()
-	rowsAffected, err := api.CarDetailService.UpdateCarDetail(ctx, id, &updates)
+	rowsAffected, err := UpdateCarDetail(ctx, db, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating car detail by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -246,7 +236,7 @@ func (api *CarDetailAPI) UpdateCarDetailById(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Car detail not found"
 //	@Router			/fyc/carDetails/{id} [delete]
-func (api *CarDetailAPI) DeleteCarDetail(c *gin.Context) {
+func DeleteCarDetailAPI(c *gin.Context, db *bun.DB) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -262,7 +252,7 @@ func (api *CarDetailAPI) DeleteCarDetail(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.CarDetailService.DeleteCarDetail(ctx, id)
+	rowsAffected, err := DeleteCarDetail(ctx, db, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting car detail")
 		c.JSON(http.StatusInternalServerError, gin.H{

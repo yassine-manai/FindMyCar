@@ -11,16 +11,6 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type CameraAPI struct {
-	CameraService *CameraOp
-}
-
-func NewCameraAPI(db *bun.DB) *CameraAPI {
-	return &CameraAPI{
-		CameraService: NewCamera(db),
-	}
-}
-
 // GetCamera godoc
 //
 //	@Summary		Get all cameras
@@ -32,14 +22,14 @@ func NewCameraAPI(db *bun.DB) *CameraAPI {
 //	@Failure		500		{object}	map[string]interface{}	"Internal server error"
 //	@Failure		404		{object}	map[string]interface{}	"No cameras found"
 //	@Router			/fyc/cameras [get]
-func (api *CameraAPI) GetCamera(c *gin.Context) {
+func GetCameraAPI(c *gin.Context, db *bun.DB) {
 	ctx := context.Background()
 	extraReq := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extraReq) == "true" || strings.ToLower(extraReq) == "1" || strings.ToLower(extraReq) == "yes" {
 		log.Info().Msg("Fetching cameras with extra data")
 
-		camera, err := api.CameraService.GetAllCameraExtra(ctx)
+		camera, err := GetAllCameraExtra(ctx, db)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error":   "An unexpected error occurred",
@@ -62,7 +52,7 @@ func (api *CameraAPI) GetCamera(c *gin.Context) {
 		return
 	}
 
-	cam, err := api.CameraService.GetAllCamera(ctx)
+	cam, err := GetAllCamera(ctx, db)
 	if err != nil {
 		log.Err(err).Msg("Error getting all cameras")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -94,7 +84,7 @@ func (api *CameraAPI) GetCamera(c *gin.Context) {
 //	@Param			id	path		int	true	"Camera ID"
 //	@Success		200	{object}	Camera
 //	@Router			/fyc/cameras/{id} [get]
-func (api *CameraAPI) GetCameraByID(c *gin.Context) {
+func GetCameraByIDAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -108,7 +98,7 @@ func (api *CameraAPI) GetCameraByID(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	caemraid, err := api.CameraService.GetCameraByID(ctx, id)
+	caemraid, err := GetCameraByID(ctx, db, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving camera by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -134,7 +124,7 @@ func (api *CameraAPI) GetCameraByID(c *gin.Context) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request payload"
 //	@Failure		500		{object}	map[string]interface{}	"Failed to create a new camera"
 //	@Router			/fyc/cameras [post]
-func (api *CameraAPI) CreateCamera(c *gin.Context) {
+func CreateCameraAPI(c *gin.Context, db *bun.DB) {
 	var camera Camera
 
 	if err := c.ShouldBindJSON(&camera); err != nil {
@@ -148,7 +138,7 @@ func (api *CameraAPI) CreateCamera(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	if err := api.CameraService.CreateCamera(ctx, &camera); err != nil {
+	if err := CreateCamera(ctx, db, &camera); err != nil {
 		log.Err(err).Msg("Error creating new camera")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new camera",
@@ -175,7 +165,7 @@ func (api *CameraAPI) CreateCamera(c *gin.Context) {
 //	@Failure		404		{object}	map[string]interface{}	"Camera not found"
 //	@Failure		500		{object}	map[string]interface{}	"Failed to update camera"
 //	@Router			/fyc/cameras/{id} [put]
-func (api *CameraAPI) UpdateCamera(c *gin.Context) {
+func UpdateCameraAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -210,7 +200,7 @@ func (api *CameraAPI) UpdateCamera(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.CameraService.UpdateCamera(ctx, id, &updates)
+	rowsAffected, err := UpdateCamera(ctx, db, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating camera by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -249,7 +239,7 @@ func (api *CameraAPI) UpdateCamera(c *gin.Context) {
 //	@Failure		404	{object}	map[string]interface{}	"Camera not found"
 //	@Failure		500	{object}	map[string]interface{}	"Failed to delete camera"
 //	@Router			/fyc/cameras/{id} [delete]
-func (api *CameraAPI) DeleteCamera(c *gin.Context) {
+func DeleteCameraAPI(c *gin.Context, db *bun.DB) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -263,7 +253,7 @@ func (api *CameraAPI) DeleteCamera(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := api.CameraService.DeleteCamera(ctx, id)
+	rowsAffected, err := DeleteCamera(ctx, db, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting camera")
 		c.JSON(http.StatusInternalServerError, gin.H{

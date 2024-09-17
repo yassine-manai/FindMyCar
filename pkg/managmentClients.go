@@ -16,18 +16,8 @@ type ApiManage struct {
 	Fuzzy        string `bun:"fuzzy" binding:"required"`
 }
 
-type ApiManageOp struct {
-	DB *bun.DB
-}
-
-func NewApiManage(db *bun.DB) *ApiManageOp {
-	return &ApiManageOp{
-		DB: db,
-	}
-}
-
-func (s *ApiManageOp) AddClientCred(ctx context.Context, apimgnt *ApiManage) error {
-	_, err := s.DB.NewInsert().Model(apimgnt).Exec(ctx)
+func AddClientCred(ctx context.Context, db *bun.DB, apimgnt *ApiManage) error {
+	_, err := db.NewInsert().Model(apimgnt).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error adding api_cred: %w", err)
 	}
@@ -35,10 +25,10 @@ func (s *ApiManageOp) AddClientCred(ctx context.Context, apimgnt *ApiManage) err
 	return nil
 }
 
-func (s *ApiManageOp) GetClientCredById(ctx context.Context, clientID string) (*ApiManage, error) {
+func GetClientCredById(ctx context.Context, db *bun.DB, clientID string) (*ApiManage, error) {
 	api := new(ApiManage)
 
-	err := s.DB.NewSelect().Model(api).Where("client_id = ?", clientID).Scan(ctx)
+	err := db.NewSelect().Model(api).Where("client_id = ?", clientID).Scan(ctx)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -49,10 +39,10 @@ func (s *ApiManageOp) GetClientCredById(ctx context.Context, clientID string) (*
 	return api, nil
 }
 
-func (s *ApiManageOp) GetClientCredBySecret(ctx context.Context, clientSecret string) (*ApiManage, error) {
+func GetClientCredBySecret(ctx context.Context, db *bun.DB, clientSecret string) (*ApiManage, error) {
 	api := new(ApiManage)
 
-	err := s.DB.NewSelect().Model(api).Where("client_secret = ?", clientSecret).Scan(ctx)
+	err := db.NewSelect().Model(api).Where("client_secret = ?", clientSecret).Scan(ctx)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -63,18 +53,18 @@ func (s *ApiManageOp) GetClientCredBySecret(ctx context.Context, clientSecret st
 	return api, nil
 }
 
-func (s *ApiManageOp) GetAllClientCred(ctx context.Context) ([]ApiManage, error) {
+func GetAllClientCred(ctx context.Context, db *bun.DB) ([]ApiManage, error) {
 	var apm []ApiManage
-	err := s.DB.NewSelect().Model(&apm).Scan(ctx)
+	err := db.NewSelect().Model(&apm).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Client Credentials: %w", err)
 	}
 	return apm, nil
 }
 
-func (s *ApiManageOp) UpdateClientCred(ctx context.Context, clientID string, updatedClientCred *ApiManage) (int64, error) {
+func UpdateClientCred(ctx context.Context, db *bun.DB, clientID string, updatedClientCred *ApiManage) (int64, error) {
 	log.Debug().Msgf("Updating clientcred with ClientID: %s\n", clientID)
-	result, err := s.DB.NewUpdate().
+	result, err := db.NewUpdate().
 		Model(updatedClientCred).
 		Where("client_id = ?", clientID).
 		Exec(ctx)
@@ -90,10 +80,10 @@ func (s *ApiManageOp) UpdateClientCred(ctx context.Context, clientID string, upd
 	return rowsAffected, nil
 }
 
-func (s *ApiManageOp) DeleteClientCred(ctx context.Context, clientID string) (int64, error) {
+func DeleteClientCred(ctx context.Context, db *bun.DB, clientID string) (int64, error) {
 	log.Debug().Msgf("Deleting Client with ClientID: %s", clientID)
 
-	result, err := s.DB.NewDelete().Model((*ApiManage)(nil)).Where("client_id = ?", clientID).Exec(ctx)
+	result, err := db.NewDelete().Model((*ApiManage)(nil)).Where("client_id = ?", clientID).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting client cred with ClientID %s: %w", clientID, err)
 	}

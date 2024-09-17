@@ -1,9 +1,4 @@
 definitions:
-  config.CustomDate:
-    properties:
-      time.Time:
-        type: string
-    type: object
   pkg.ApiManage:
     properties:
       clientID:
@@ -91,15 +86,6 @@ definitions:
       spot_id:
         type: string
     type: object
-  pkg.CarLocationv3:
-    properties:
-      facility:
-        type: string
-      picture_name:
-        type: string
-      spot_id:
-        type: string
-    type: object
   pkg.Carpark:
     properties:
       capacity:
@@ -128,15 +114,6 @@ definitions:
       locations:
         items:
           $ref: '#/definitions/pkg.CarLocation'
-        type: array
-      response_code:
-        type: integer
-    type: object
-  pkg.FindMyCarResponsev3:
-    properties:
-      locations:
-        items:
-          $ref: '#/definitions/pkg.CarLocationv3'
         type: array
       response_code:
         type: integer
@@ -172,11 +149,6 @@ definitions:
       image_data:
         type: string
     type: object
-  pkg.PictureResponsev3:
-    properties:
-      image_data:
-        type: string
-    type: object
   pkg.PresentCar:
     properties:
       ID:
@@ -199,7 +171,7 @@ definitions:
       lpn:
         type: string
       transactionDate:
-        $ref: '#/definitions/config.CustomDate'
+        type: string
     required:
     - cameraID
     - carDetailsID
@@ -227,15 +199,6 @@ definitions:
         type: string
     type: object
   pkg.TokenResponseTest:
-    properties:
-      access_token:
-        type: string
-      expires_in:
-        type: integer
-      token_type:
-        type: string
-    type: object
-  pkg.TokenResponseTestv3:
     properties:
       access_token:
         type: string
@@ -312,7 +275,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.FindMyCarResponsev3'
+            $ref: '#/definitions/pkg.FindMyCarResponse'
       summary: Find a car by license plate
       tags:
       - Car Location
@@ -939,45 +902,6 @@ paths:
       summary: Get present car by LPN
       tags:
       - PresentCars
-  /fyc/v1:
-    get:
-      description: Get car information based on LPN, language, and fuzzy logic
-      parameters:
-      - description: License Plate Number
-        in: query
-        name: LPN
-        required: true
-        type: string
-      - description: Language (EN, AR, etc.)
-        in: query
-        name: L
-        required: true
-        type: string
-      - description: Fuzzy logic setting (On/Off)
-        in: query
-        name: FuzzyLogic
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-      summary: Get car information
-      tags:
-      - Test_Version1
   /fyc/v1/Auth/token:
     post:
       consumes:
@@ -1283,7 +1207,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.PictureResponsev3'
+            $ref: '#/definitions/pkg.PictureResponse'
       summary: Get a picture by picture name
       tags:
       - Car Location
@@ -1316,7 +1240,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.TokenResponseTestv3'
+            $ref: '#/definitions/pkg.TokenResponseTest'
       summary: Get an access token
       tags:
       - Car Location
