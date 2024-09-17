@@ -62,7 +62,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.FindMyCarResponse"
+                            "$ref": "#/definitions/pkg.FindMyCarResponsev3"
                         }
                     }
                 }
@@ -1519,7 +1519,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.PictureResponse"
+                            "$ref": "#/definitions/pkg.PictureResponsev3"
                         }
                     }
                 }
@@ -1565,7 +1565,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.TokenResponseTest"
+                            "$ref": "#/definitions/pkg.TokenResponseTestv3"
                         }
                     }
                 }
@@ -1705,6 +1705,20 @@ const docTemplate = `{
                 }
             }
         },
+        "pkg.CarLocationv3": {
+            "type": "object",
+            "properties": {
+                "facility": {
+                    "type": "string"
+                },
+                "picture_name": {
+                    "type": "string"
+                },
+                "spot_id": {
+                    "type": "string"
+                }
+            }
+        },
         "pkg.Carpark": {
             "type": "object",
             "required": [
@@ -1751,6 +1765,20 @@ const docTemplate = `{
                 }
             }
         },
+        "pkg.FindMyCarResponsev3": {
+            "type": "object",
+            "properties": {
+                "locations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pkg.CarLocationv3"
+                    }
+                },
+                "response_code": {
+                    "type": "integer"
+                }
+            }
+        },
         "pkg.ImageZone": {
             "type": "object",
             "required": [
@@ -1789,6 +1817,14 @@ const docTemplate = `{
             }
         },
         "pkg.PictureResponse": {
+            "type": "object",
+            "properties": {
+                "image_data": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.PictureResponsev3": {
             "type": "object",
             "properties": {
                 "image_data": {
@@ -1867,6 +1903,20 @@ const docTemplate = `{
             }
         },
         "pkg.TokenResponseTest": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.TokenResponseTestv3": {
             "type": "object",
             "properties": {
                 "access_token": {

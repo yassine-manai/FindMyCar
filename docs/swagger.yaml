@@ -91,6 +91,15 @@ definitions:
       spot_id:
         type: string
     type: object
+  pkg.CarLocationv3:
+    properties:
+      facility:
+        type: string
+      picture_name:
+        type: string
+      spot_id:
+        type: string
+    type: object
   pkg.Carpark:
     properties:
       capacity:
@@ -123,6 +132,15 @@ definitions:
       response_code:
         type: integer
     type: object
+  pkg.FindMyCarResponsev3:
+    properties:
+      locations:
+        items:
+          $ref: '#/definitions/pkg.CarLocationv3'
+        type: array
+      response_code:
+        type: integer
+    type: object
   pkg.ImageZone:
     properties:
       ID:
@@ -150,6 +168,11 @@ definitions:
     - zone_id
     type: object
   pkg.PictureResponse:
+    properties:
+      image_data:
+        type: string
+    type: object
+  pkg.PictureResponsev3:
     properties:
       image_data:
         type: string
@@ -204,6 +227,15 @@ definitions:
         type: string
     type: object
   pkg.TokenResponseTest:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  pkg.TokenResponseTestv3:
     properties:
       access_token:
         type: string
@@ -280,7 +312,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.FindMyCarResponse'
+            $ref: '#/definitions/pkg.FindMyCarResponsev3'
       summary: Find a car by license plate
       tags:
       - Car Location
@@ -1251,7 +1283,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.PictureResponse'
+            $ref: '#/definitions/pkg.PictureResponsev3'
       summary: Get a picture by picture name
       tags:
       - Car Location
@@ -1284,7 +1316,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.TokenResponseTest'
+            $ref: '#/definitions/pkg.TokenResponseTestv3'
       summary: Get an access token
       tags:
       - Car Location

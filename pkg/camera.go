@@ -67,7 +67,7 @@ func (camop *CameraOp) GetAllCamera(ctx context.Context) ([]ResponseCamera, erro
 	return cam, nil
 }
 
-// Gt cmera by id
+// Gt camera by id
 func (camop *CameraOp) GetCameraByID(ctx context.Context, id int) (*Camera, error) {
 	cm := new(Camera)
 	err := camop.DB.NewSelect().Model(cm).Where("id = ?", id).Scan(ctx)
