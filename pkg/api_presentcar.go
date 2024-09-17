@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -157,6 +158,7 @@ func (api *PresentCarAPI) GetPresentCarByLPN(c *gin.Context) {
 //	@Router			/fyc/presentcars [post]
 func (api *PresentCarAPI) CreatePresentCar(c *gin.Context) {
 	var car PresentCar
+	ctx := context.Background()
 
 	if err := c.ShouldBindJSON(&car); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -167,7 +169,38 @@ func (api *PresentCarAPI) CreatePresentCar(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ZoneService := NewZone(api.PresentCarService.DB)
+	_, err := ZoneService.GetZoneByID(ctx, car.CurrZoneID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Zone not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", car.CurrZoneID),
+			"code":    14,
+		})
+		return
+	}
+
+	_, errr := ZoneService.GetZoneByID(ctx, car.LastZoneID)
+	if errr != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Zone not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", car.LastZoneID),
+			"code":    14,
+		})
+		return
+	}
+
+	CamService := NewCamera(api.PresentCarService.DB)
+	_, errCam := CamService.GetCameraByID(ctx, car.CameraID)
+	if errCam != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Camera not found",
+			"message": fmt.Sprintf("Camera with ID %d does not exist", car.CameraID),
+			"code":    14,
+		})
+		return
+	}
+
 	// Insert the new car into the database
 	if err := api.PresentCarService.CreatePresentCar(ctx, &car); err != nil {
 		log.Err(err).Msg("Error creating present car")
@@ -240,8 +273,40 @@ func (api *PresentCarAPI) UpdatePresentCarById(c *gin.Context) {
 		return
 	}
 
-	// Call the service to update the present car
+	ZoneService := NewZone(api.PresentCarService.DB)
 	ctx := context.Background()
+	_, errup := ZoneService.GetZoneByID(ctx, updates.CurrZoneID)
+	if errup != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Current Zone not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.CurrZoneID),
+			"code":    14,
+		})
+		return
+	}
+
+	_, errr := ZoneService.GetZoneByID(ctx, updates.LastZoneID)
+	if errr != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Last Zone not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.LastZoneID),
+			"code":    14,
+		})
+		return
+	}
+
+	CamService := NewCamera(api.PresentCarService.DB)
+	_, errCam := CamService.GetCameraByID(ctx, updates.CameraID)
+	if errCam != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Camera not found",
+			"message": fmt.Sprintf("Camera with ID %d does not exist", updates.CameraID),
+			"code":    14,
+		})
+		return
+	}
+
+	// Call the service to update the present car
 	rowsAffected, err := api.PresentCarService.UpdatePresentCar(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating present car by ID")

@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -133,6 +134,7 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 	var zone Zone
 	ctx := context.Background()
 
+	// Bind the incoming JSON payload to the zone struct
 	if err := c.ShouldBindJSON(&zone); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
@@ -142,16 +144,17 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 		return
 	}
 
-	/* 	if cp, err := cp.CarparkService.GetCarparkByID(ctx, zone.ID); err != nil {
-		log.Err(err).Msg("Carpark with value  not found")
-		fmt.Printf("Carpark %v not found", cp.ID)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to create a new zone",
-			"message": err.Error(),
-			"code":    10,
+	carparkService := NewCarpark(api.ZoneService.DB)
+	_, err := carparkService.GetCarparkByID(ctx, zone.CarParkID)
+	if err != nil {
+		// Carpark does not exist, return a 404 Not Found error
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Carpark not found",
+			"message": fmt.Sprintf("Carpark with ID %d does not exist", zone.CarParkID),
+			"code":    14,
 		})
 		return
-	} */
+	}
 
 	// Insert the new zone into the database
 	if err := api.ZoneService.CreateZone(ctx, &zone); err != nil {
@@ -164,6 +167,7 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 		return
 	}
 
+	// Prepare the response
 	response := Zone{
 		ID:          zone.ID,
 		ZoneID:      zone.ZoneID,
@@ -175,6 +179,7 @@ func (api *ZoneAPI) CreateZone(c *gin.Context) {
 		Extra:       zone.Extra,
 	}
 
+	// Return the response with a 201 status
 	c.JSON(http.StatusCreated, response)
 }
 
@@ -205,6 +210,7 @@ func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
 	}
 
 	var updates Zone
+	ctx := context.Background()
 
 	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -224,8 +230,19 @@ func (api *ZoneAPI) UpdateZoneId(c *gin.Context) {
 		return
 	}
 
+	carparkService := NewCarpark(api.ZoneService.DB)
+	_, errup := carparkService.GetCarparkByID(ctx, updates.CarParkID)
+	if errup != nil {
+		// Carpark does not exist, return a 404 Not Found error
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Carpark not found",
+			"message": fmt.Sprintf("Carpark with ID %d does not exist", updates.CarParkID),
+			"code":    14,
+		})
+		return
+	}
+
 	// Call the service to update the present car
-	ctx := context.Background()
 	rowsAffected, err := api.ZoneService.UpdateZone(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone by ID")

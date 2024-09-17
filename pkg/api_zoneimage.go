@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -131,6 +132,7 @@ func (api *ZoneImageAPI) GetZoneImageByID(c *gin.Context) {
 //	@Router			/fyc/zonesImage [post]
 func (api *ZoneImageAPI) CreateZoneImage(c *gin.Context) {
 	var zoneImage ImageZone
+	ctx := context.Background()
 
 	if err := c.ShouldBindJSON(&zoneImage); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -141,7 +143,17 @@ func (api *ZoneImageAPI) CreateZoneImage(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ZoneService := NewZone(api.ZoneImageService.DB)
+	_, errup := ZoneService.GetZoneByID(ctx, zoneImage.ZoneID)
+	if errup != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Zone not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", zoneImage.ZoneID),
+			"code":    14,
+		})
+		return
+	}
+
 	if err := api.ZoneImageService.CreateZoneImage(ctx, &zoneImage); err != nil {
 		log.Err(err).Msg("Error creating new zone image")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -182,6 +194,7 @@ func (api *ZoneImageAPI) UpdateZoneImageById(c *gin.Context) {
 	}
 
 	var updates ImageZone
+	ctx := context.Background()
 
 	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -201,8 +214,18 @@ func (api *ZoneImageAPI) UpdateZoneImageById(c *gin.Context) {
 		return
 	}
 
+	ZoneService := NewZone(api.ZoneImageService.DB)
+	_, errup := ZoneService.GetZoneByID(ctx, updates.ZoneID)
+	if errup != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Zone not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.ZoneID),
+			"code":    14,
+		})
+		return
+	}
+
 	// Call the service to update the present car
-	ctx := context.Background()
 	rowsAffected, err := api.ZoneImageService.UpdateZoneImage(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone image by ID")
