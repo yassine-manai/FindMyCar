@@ -22,19 +22,19 @@ type Zone struct {
 
 type ResponseZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone"`
-	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
-	ZoneID        *int                   `bun:"zone_id"`
-	MaxCapacity   *int                   `bun:"max_capacity"`
-	Present       *int                   `bun:"present"`
-	Name          map[string]interface{} `bun:"name"`
-	Description   string                 `bun:"description"`
-	CarParkID     *int                   `bun:"carpark_id"`
+	ID            int                    `bun:"id" json:"id"`
+	ZoneID        *int                   `bun:"zone_id" json:"zone_id"`
+	MaxCapacity   *int                   `bun:"max_capacity" json:"max_capacity"`
+	Present       *int                   `bun:"present" json:"present"`
+	Name          map[string]interface{} `bun:"name" json:"name"`
+	Description   string                 `json:"description"`
+	CarParkID     *int                   `bun:"carpark_id" json:"carpark_id"`
 }
 
 // Get all Zones with extra data
-func GetAllZoneExtra(ctx context.Context, db *bun.DB) ([]Zone, error) {
+func GetAllZoneExtra(ctx context.Context) ([]Zone, error) {
 	var zone []Zone
-	err := db.NewSelect().Model(&zone).Column().Scan(ctx)
+	err := Dbg.NewSelect().Model(&zone).Column().Scan(ctx)
 	if err != nil {
 
 		return nil, fmt.Errorf("error getting all Zones with Extra: %w", err)
@@ -43,9 +43,9 @@ func GetAllZoneExtra(ctx context.Context, db *bun.DB) ([]Zone, error) {
 }
 
 // Get all zone
-func GetAllZone(ctx context.Context, db *bun.DB) ([]ResponseZone, error) {
+func GetAllZone(ctx context.Context) ([]ResponseZone, error) {
 	var EZ []ResponseZone
-	err := db.NewSelect().Model(&EZ).Scan(ctx)
+	err := Dbg.NewSelect().Model(&EZ).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all zones : %w", err)
 	}
@@ -53,9 +53,9 @@ func GetAllZone(ctx context.Context, db *bun.DB) ([]ResponseZone, error) {
 }
 
 // Gt zone by id
-func GetZoneByID(ctx context.Context, db *bun.DB, id int) (*Zone, error) {
+func GetZoneByID(ctx context.Context, id int) (*Zone, error) {
 	zone := new(Zone)
-	err := db.NewSelect().Model(zone).Where("zone_id = ?", id).Scan(ctx)
+	err := Dbg.NewSelect().Model(zone).Where("zone_id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting zone by id : %w", err)
 	}
@@ -63,9 +63,9 @@ func GetZoneByID(ctx context.Context, db *bun.DB, id int) (*Zone, error) {
 }
 
 // create a new zone
-func CreateZone(ctx context.Context, db *bun.DB, zone *Zone) error {
+func CreateZone(ctx context.Context, zone *Zone) error {
 	// Insert and get the auto-generated ID from the database
-	_, err := db.NewInsert().Model(zone).Returning("zone_id").Exec(ctx)
+	_, err := Dbg.NewInsert().Model(zone).Returning("zone_id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating a zone : %w", err)
 	}
@@ -75,8 +75,8 @@ func CreateZone(ctx context.Context, db *bun.DB, zone *Zone) error {
 }
 
 // Update a zone by ID
-func UpdateZone(ctx context.Context, db *bun.DB, zone_id int, updates *Zone) (int64, error) {
-	res, err := db.NewUpdate().Model(updates).Where("zone_id = ?", zone_id).ExcludeColumn("ID").Exec(ctx)
+func UpdateZone(ctx context.Context, zone_id int, updates *Zone) (int64, error) {
+	res, err := Dbg.NewUpdate().Model(updates).Where("zone_id = ?", zone_id).ExcludeColumn("ID").Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating zone with id %d: %w", zone_id, err)
 	}
@@ -88,8 +88,8 @@ func UpdateZone(ctx context.Context, db *bun.DB, zone_id int, updates *Zone) (in
 }
 
 // Delete a zone by ID
-func DeleteZone(ctx context.Context, db *bun.DB, zone_id int) (int64, error) {
-	res, err := db.NewDelete().Model(&Zone{}).Where("zone_id = ?", zone_id).Exec(ctx)
+func DeleteZone(ctx context.Context, zone_id int) (int64, error) {
+	res, err := Dbg.NewDelete().Model(&Zone{}).Where("zone_id = ?", zone_id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting Zone with id %d: %w", zone_id, err)
 	}

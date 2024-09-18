@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/uptrace/bun"
 )
 
 // GetZones godoc
@@ -22,12 +21,12 @@ import (
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{array}		Zone
 //	@Router			/fyc/zones [get]
-func GetZonesAPI(c *gin.Context, db *bun.DB) {
+func GetZonesAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		zones, err := GetAllZoneExtra(ctx, db)
+		zones, err := GetAllZoneExtra(ctx)
 		if err != nil {
 			log.Err(err).Msg("Error getting all zones with extra data ")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -51,7 +50,7 @@ func GetZonesAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	zoo, err := GetAllZone(ctx, db)
+	zoo, err := GetAllZone(ctx)
 	if err != nil {
 		log.Err(err).Msg("Error getting all zones")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -83,7 +82,7 @@ func GetZonesAPI(c *gin.Context, db *bun.DB) {
 //	@Param			id	path		int	true	"Zone ID"
 //	@Success		200	{object}	Zone
 //	@Router			/fyc/zones/{id} [get]
-func GetZoneByIDAPI(c *gin.Context, db *bun.DB) {
+func GetZoneByIDAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -97,7 +96,7 @@ func GetZoneByIDAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	zone, err := GetZoneByID(ctx, db, id)
+	zone, err := GetZoneByID(ctx, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving Zone by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -121,7 +120,7 @@ func GetZoneByIDAPI(c *gin.Context, db *bun.DB) {
 //	@Param			zone	body		Zone	true	"Zone data"
 //	@Success		201		{object}	Zone
 //	@Router			/fyc/zones [post]
-func CreateZoneAPI(c *gin.Context, db *bun.DB) {
+func CreateZoneAPI(c *gin.Context) {
 	var zone Zone
 	ctx := context.Background()
 
@@ -144,7 +143,7 @@ func CreateZoneAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	if err := CreateZone(ctx, db, &zone); err != nil {
+	if err := CreateZone(ctx, &zone); err != nil {
 		log.Err(err).Msg("Error creating new zone")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new zone",
@@ -183,7 +182,7 @@ func CreateZoneAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone not found"
 //	@Router			/fyc/zones/{id} [put]
-func UpdateZoneIdAPI(c *gin.Context, db *bun.DB) {
+func UpdateZoneIdAPI(c *gin.Context) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -220,14 +219,14 @@ func UpdateZoneIdAPI(c *gin.Context, db *bun.DB) {
 	if !functions.Contains(CarParkList, *updates.CarParkID) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Carpark not found ",
-			"message": fmt.Sprintf("Carpark with ID %d does not exist", updates.CarParkID),
+			"message": fmt.Sprintf("Carpark with ID %d does not exist", *updates.CarParkID),
 			"code":    9,
 		})
 		return
 	}
 
 	// Call the service to update the present car
-	rowsAffected, err := UpdateZone(ctx, db, id, &updates)
+	rowsAffected, err := UpdateZone(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -265,7 +264,7 @@ func UpdateZoneIdAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone not found"
 //	@Router			/fyc/zones/{id} [delete]
-func DeleteZoneAPI(c *gin.Context, db *bun.DB) {
+func DeleteZoneAPI(c *gin.Context) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -279,7 +278,7 @@ func DeleteZoneAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := DeleteZone(ctx, db, id)
+	rowsAffected, err := DeleteZone(ctx, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting Zone")
 		c.JSON(http.StatusInternalServerError, gin.H{

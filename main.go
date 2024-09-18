@@ -19,9 +19,11 @@ import (
 // @version         1.0
 
 func main() {
-	fmt.Println("----------------------------- # START # ------------------------------")
+	config.InitLogger()
+	fmt.Println("----------------------------- # START PROGRAM # ------------------------------")
 
 	var configvar config.ConfigFile
+
 	if err := configvar.Load(); err != nil {
 		log.Err(err).Msgf("Error loading config: %v", err)
 	} else {
@@ -31,14 +33,12 @@ func main() {
 	fmt.Printf("Server running on %s:%d ", configvar.Server.Host, configvar.Server.Port)
 	fmt.Printf("Database connecting to %s:%d", configvar.Database.Host, configvar.Database.Port)
 
-	var dbv = configvar.Database
-	var dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbv.User, dbv.Password, dbv.Host, dbv.Port, dbv.Name)
+	var dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", configvar.Database.User, configvar.Database.Password, configvar.Database.Host, configvar.Database.Port, configvar.Database.Name)
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
-	db := bun.NewDB(sqldb, pgdialect.New())
-	ctx := context.Background()
+	pkg.Dbg = bun.NewDB(sqldb, pgdialect.New())
 
-	if err := db.Ping(); err != nil {
+	if err := pkg.Dbg.Ping(); err != nil {
 		fmt.Println(err)
 	}
 
@@ -51,31 +51,32 @@ func main() {
 		(*pkg.Camera)(nil),
 		(*pkg.CarDetail)(nil),
 		(*pkg.ApiManage)(nil),
+		(*pkg.PresentCarHistory)(nil),
 	}
-
-	// Call the CreateTables function to create all tables
-	if err := functions.CreateTables(ctx, db, models); err != nil {
+	ctx := context.Background()
+	if err := functions.CreateTables(ctx, pkg.Dbg, models); err != nil {
 		fmt.Printf("Failed to create tables: %v", err)
 	}
 
 	fmt.Println("Tables created successfully")
-	log.Debug().Msgf("-------------------------------- # VALUES START # ------------------------------")
 
-	pkg.Loadzonelist(db)
-	pkg.LoadCarparklist(db)
-	pkg.LoadCameralist(db)
+	// Data in list in startup
+	fmt.Println("-------------------------------- # DATA LIST START # ------------------------------")
+	pkg.Loadzonelist()
+	pkg.LoadCarparklist()
+	pkg.LoadCameralist()
 
 	fmt.Println(len(pkg.Zonelist))
 	fmt.Println(len(pkg.CarParkList))
 	fmt.Println(len(pkg.CameraList))
-	log.Debug().Msgf("-------------------------------- # VALUES END # ------------------------------")
+	fmt.Println("-------------------------------- #  DATA LIST END # ------------------------------")
 
-	r := pkg.SetupRouter(db)
+	r := pkg.SetupRouter()
 
 	var host = fmt.Sprintf("%s:%d", configvar.Server.Host, configvar.Server.Port)
 	if err := r.Run(host); err != nil {
 		log.Err(err).Msgf("Failed to run server: %v", err)
 	}
 
-	log.Debug().Msgf("-------------------------------- # END # ------------------------------")
+	log.Debug().Msgf("-------------------------------- # END PROGRAM # ------------------------------")
 }

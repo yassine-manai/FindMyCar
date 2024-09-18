@@ -1,0 +1,62 @@
+simpleAR := CarLocation{
+		Facility:    *car.CurrZoneID,
+		SpotID:      "ب-456",
+		PictureName: "car_" + licensePlate + "_1.jpg",
+	}
+
+	if licensePlate == "ABCD" {
+
+		if fuzzyLogic == "true" {
+			if language == "EN" {
+				c.JSON(http.StatusOK, FindMyCarResponse{
+					ResponseCode: 200,
+					Locations:    carLocationsEN,
+				})
+			} else if language == "AR" {
+				c.JSON(http.StatusOK, FindMyCarResponse{
+					ResponseCode: 200,
+					Locations:    carLocationsAR,
+				})
+			} else {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error":   "Bad Request",
+					"message": "Unsupported language code",
+					"code":    "12",
+				})
+				return
+			}
+		} else if fuzzyLogic == "false" {
+			if language == "EN" {
+				c.JSON(http.StatusOK, FindMyCarResponse{
+					ResponseCode: 200,
+					Locations:    []CarLocation{simpleEN},
+				})
+			} else if language == "AR" {
+				c.JSON(http.StatusOK, FindMyCarResponse{
+					ResponseCode: 200,
+					Locations:    []CarLocation{simpleAR},
+				})
+			} else {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error":   "Bad Request",
+					"message": "Unsupported language code",
+					"code":    "12",
+				})
+				return
+			}
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   "Bad Request",
+				"message": "Invalid fuzzy logic value",
+				"code":    "12",
+			})
+			return
+		}
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Not Found",
+			"message": "License plate not found",
+			"code":    9,
+		})
+		return
+	}

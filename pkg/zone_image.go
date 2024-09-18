@@ -10,7 +10,7 @@ import (
 
 type ImageZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
-	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"id"`
 	ZoneID        *int                   `bun:"zone_id" json:"zone_id" binding:"required"`
 	Lang          string                 `bun:"lang" json:"lang" binding:"required"`
 	ImageSm       []byte                 `bun:"image_s" json:"image_s" binding:"required"`
@@ -20,17 +20,17 @@ type ImageZone struct {
 
 type ResponseImageZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
-	ID            int    `bun:"id,pk,autoincrement"`
-	ZoneID        *int   `bun:"zone_id"`
-	Lang          string `bun:"lang"`
-	ImageSm       []byte `bun:"image_s"`
-	ImageL        []byte `bun:"image_l"`
+	ID            int    `bun:"id, json:"id"`
+	ZoneID        *int   `bun:"zone_id" json:"zone_id"`
+	Lang          string `bun:"lang" json:"lang"`
+	ImageSm       []byte `bun:"image_s" json:"image_s"`
+	ImageL        []byte `bun:"image_l" json:"image_l"`
 }
 
 // Get all Zones with extra data
-func GetAllZoneImageExtra(ctx context.Context, db *bun.DB) ([]ImageZone, error) {
+func GetAllZoneImageExtra(ctx context.Context) ([]ImageZone, error) {
 	var zoneImage []ImageZone
-	err := db.NewSelect().Model(&zoneImage).Column().Scan(ctx)
+	err := Dbg.NewSelect().Model(&zoneImage).Column().Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Image Zones with Extra Data: %w", err)
 	}
@@ -38,9 +38,9 @@ func GetAllZoneImageExtra(ctx context.Context, db *bun.DB) ([]ImageZone, error) 
 }
 
 // Get all zone
-func GetAllZoneImage(ctx context.Context, db *bun.DB) ([]ResponseImageZone, error) {
+func GetAllZoneImage(ctx context.Context) ([]ResponseImageZone, error) {
 	var EZI []ResponseImageZone
-	err := db.NewSelect().Model(&EZI).Scan(ctx)
+	err := Dbg.NewSelect().Model(&EZI).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
 	}
@@ -48,9 +48,9 @@ func GetAllZoneImage(ctx context.Context, db *bun.DB) ([]ResponseImageZone, erro
 }
 
 // Gt zone by id
-func GetZoneImageByID(ctx context.Context, db *bun.DB, zone_id int) (*ImageZone, error) {
+func GetZoneImageByID(ctx context.Context, zone_id int) (*ImageZone, error) {
 	zoneImg := new(ImageZone)
-	err := db.NewSelect().Model(zoneImg).Where("zone_id = ?", zone_id).Scan(ctx)
+	err := Dbg.NewSelect().Model(zoneImg).Where("zone_id = ?", zone_id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting Zone Image by id : %w", err)
 	}
@@ -58,9 +58,9 @@ func GetZoneImageByID(ctx context.Context, db *bun.DB, zone_id int) (*ImageZone,
 }
 
 // create a new zone
-func CreateZoneImage(ctx context.Context, db *bun.DB, zoneImg *ImageZone) error {
+func CreateZoneImage(ctx context.Context, zoneImg *ImageZone) error {
 	// Insert and get the auto-generated ID from the database
-	_, err := db.NewInsert().Model(zoneImg).Returning("id").Exec(ctx)
+	_, err := Dbg.NewInsert().Model(zoneImg).Returning("id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating a Zone Image : %w", err)
 	}
@@ -70,8 +70,8 @@ func CreateZoneImage(ctx context.Context, db *bun.DB, zoneImg *ImageZone) error 
 }
 
 // Update a zone img by ID
-func UpdateZoneImage(ctx context.Context, db *bun.DB, zone_id int, updates *ImageZone) (int64, error) {
-	res, err := db.NewUpdate().Model(updates).Where("zone_id = ?", zone_id).ExcludeColumn("id").Exec(ctx)
+func UpdateZoneImage(ctx context.Context, zone_id int, updates *ImageZone) (int64, error) {
+	res, err := Dbg.NewUpdate().Model(updates).Where("zone_id = ?", zone_id).ExcludeColumn("id").Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating Zone Image with id %d: %w", zone_id, err)
 	}
@@ -83,8 +83,8 @@ func UpdateZoneImage(ctx context.Context, db *bun.DB, zone_id int, updates *Imag
 }
 
 // Delete a zone img by ID
-func DeleteZoneImage(ctx context.Context, db *bun.DB, id int) (int64, error) {
-	res, err := db.NewDelete().Model(&ImageZone{}).Where("ID = ?", id).Exec(ctx)
+func DeleteZoneImage(ctx context.Context, id int) (int64, error) {
+	res, err := Dbg.NewDelete().Model(&ImageZone{}).Where("ID = ?", id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting Zone Image with id %d: %w", id, err)
 	}

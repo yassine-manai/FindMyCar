@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/uptrace/bun"
 )
 
 // GetZonesImages godoc
@@ -22,12 +21,12 @@ import (
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{array}		ImageZone
 //	@Router			/fyc/zonesImage [get]
-func GetImageZonesAPI(c *gin.Context, db *bun.DB) {
+func GetImageZonesAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		zonesImage, err := GetAllZoneImageExtra(ctx, db)
+		zonesImage, err := GetAllZoneImageExtra(ctx)
 		if err != nil {
 			log.Err(err).Msg("Error getting all zones image  with extra data ")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -51,7 +50,7 @@ func GetImageZonesAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	zoimg, err := GetAllZoneImage(ctx, db)
+	zoimg, err := GetAllZoneImage(ctx)
 	if err != nil {
 		log.Err(err).Msg("Error getting all zones images")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -83,7 +82,7 @@ func GetImageZonesAPI(c *gin.Context, db *bun.DB) {
 //	@Param			id	path		int	true	"ZoneImage ID"
 //	@Success		200	{object}	ImageZone
 //	@Router			/fyc/zonesImage/{id} [get]
-func GetZoneImageByIDAPI(c *gin.Context, db *bun.DB) {
+func GetZoneImageByIDAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -97,7 +96,7 @@ func GetZoneImageByIDAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	zoneimage, err := GetZoneImageByID(ctx, db, id)
+	zoneimage, err := GetZoneImageByID(ctx, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving zoneimage by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -121,7 +120,7 @@ func GetZoneImageByIDAPI(c *gin.Context, db *bun.DB) {
 //	@Param			ImageZone	body		ImageZone	true	"Zone image data"
 //	@Success		201		{object}	ImageZone
 //	@Router			/fyc/zonesImage [post]
-func CreateZoneImageAPI(c *gin.Context, db *bun.DB) {
+func CreateZoneImageAPI(c *gin.Context) {
 	var zoneImage ImageZone
 	ctx := context.Background()
 
@@ -145,7 +144,7 @@ func CreateZoneImageAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	if err := CreateZoneImage(ctx, db, &zoneImage); err != nil {
+	if err := CreateZoneImage(ctx, &zoneImage); err != nil {
 		log.Err(err).Msg("Error creating new zone image")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new zone image",
@@ -171,7 +170,7 @@ func CreateZoneImageAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone image not found"
 //	@Router			/fyc/zonesImage/{id} [put]
-func UpdateZoneImageByIdAPI(c *gin.Context, db *bun.DB) {
+func UpdateZoneImageByIdAPI(c *gin.Context) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -217,7 +216,7 @@ func UpdateZoneImageByIdAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	// Call the service to update the present car
-	rowsAffected, err := UpdateZoneImage(ctx, db, id, &updates)
+	rowsAffected, err := UpdateZoneImage(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone image by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -255,7 +254,7 @@ func UpdateZoneImageByIdAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Zone image not found"
 //	@Router			/fyc/zonesImage/{id} [delete]
-func DeleteZoneImageAPI(c *gin.Context, db *bun.DB) {
+func DeleteZoneImageAPI(c *gin.Context) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -269,7 +268,7 @@ func DeleteZoneImageAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := DeleteZoneImage(ctx, db, id)
+	rowsAffected, err := DeleteZoneImage(ctx, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting zone image")
 		c.JSON(http.StatusInternalServerError, gin.H{

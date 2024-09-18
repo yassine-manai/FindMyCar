@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/uptrace/bun"
 )
 
 // GetAllCarparks godoc
@@ -20,12 +19,12 @@ import (
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{object}	[]Carpark
 //	@Router			/fyc/carparks [get]
-func GetAllCarparksAPI(c *gin.Context, db *bun.DB) {
+func GetAllCarparksAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		carparkEx, err := GetAllCarparksExtra(ctx, db)
+		carparkEx, err := GetAllCarparksExtra(ctx)
 		if err != nil {
 			log.Err(err).Msg("Error getting all carpark with extra data")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -49,7 +48,7 @@ func GetAllCarparksAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	carpark, err := GetAllCarparks(ctx, db)
+	carpark, err := GetAllCarparks(ctx)
 	if err != nil {
 		log.Err(err).Msg("Error getting all cameras")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -81,7 +80,7 @@ func GetAllCarparksAPI(c *gin.Context, db *bun.DB) {
 //	@Param			id	path		int	true	"Carpark ID"
 //	@Success		200	{object}	Carpark
 //	@Router			/fyc/carparks/{id} [get]
-func GetCarparkByIDAPI(c *gin.Context, db *bun.DB) {
+func GetCarparkByIDAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -95,7 +94,7 @@ func GetCarparkByIDAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	carpark, err := GetCarparkByID(ctx, db, id)
+	carpark, err := GetCarparkByID(ctx, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving carpark by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -119,7 +118,7 @@ func GetCarparkByIDAPI(c *gin.Context, db *bun.DB) {
 //	@Param			carpark	body		Carpark	true	"Carpark data"
 //	@Success		201	{object}	Carpark
 //	@Router			/fyc/carparks [post]
-func AddCarparkAPI(c *gin.Context, db *bun.DB) {
+func AddCarparkAPI(c *gin.Context) {
 	var carpark Carpark
 	if err := c.ShouldBindJSON(&carpark); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -131,7 +130,7 @@ func AddCarparkAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	if err := AddCarpark(ctx, db, &carpark); err != nil {
+	if err := AddCarpark(ctx, &carpark); err != nil {
 		log.Err(err).Msg("Error creating carpark")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create carpark",
@@ -155,7 +154,7 @@ func AddCarparkAPI(c *gin.Context, db *bun.DB) {
 //	@Param			carpark	body		Carpark	true	"Updated carpark data"
 //	@Success		200	{object}	Carpark
 //	@Router			/fyc/carparks/{id} [put]
-func UpdateCarparkAPI(c *gin.Context, db *bun.DB) {
+func UpdateCarparkAPI(c *gin.Context) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -188,7 +187,7 @@ func UpdateCarparkAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	_, err = UpdateCarpark(ctx, db, id, &carpark)
+	_, err = UpdateCarpark(ctx, id, &carpark)
 	if err != nil {
 		log.Err(err).Msg("Error updating carpark")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -211,7 +210,7 @@ func UpdateCarparkAPI(c *gin.Context, db *bun.DB) {
 //	@Param			id	path		int		true	"Carpark ID"
 //	@Success		200	{string}	string	"Carpark deleted successfully"
 //	@Router			/fyc/carparks/{id} [delete]
-func DeleteCarparkAPI(c *gin.Context, db *bun.DB) {
+func DeleteCarparkAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -224,7 +223,7 @@ func DeleteCarparkAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := DeleteCarpark(ctx, db, id)
+	rowsAffected, err := DeleteCarpark(ctx, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting carpark")
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -1,20 +1,18 @@
 definitions:
   pkg.ApiManage:
     properties:
-      clientID:
+      client_id:
         type: string
-      clientSecret:
+      client_secret:
         type: string
       fuzzy:
         type: string
     required:
-    - clientSecret
+    - client_secret
     - fuzzy
     type: object
   pkg.Camera:
     properties:
-      ID:
-        type: integer
       cam_ip:
         type: string
       cam_name:
@@ -32,6 +30,8 @@ definitions:
       extra:
         additionalProperties: true
         type: object
+      id:
+        type: integer
       zone_id_in:
         type: integer
       zone_id_out:
@@ -50,14 +50,14 @@ definitions:
     type: object
   pkg.CarDetail:
     properties:
-      ID:
-        type: integer
       cam_body:
         additionalProperties: true
         type: object
       extra:
         additionalProperties: true
         type: object
+      id:
+        type: integer
       image1:
         items:
           type: integer
@@ -80,7 +80,7 @@ definitions:
   pkg.CarLocation:
     properties:
       facility:
-        type: string
+        type: integer
       picture_name:
         type: string
       spot_id:
@@ -120,11 +120,11 @@ definitions:
     type: object
   pkg.ImageZone:
     properties:
-      ID:
-        type: integer
       extra:
         additionalProperties: true
         type: object
+      id:
+        type: integer
       image_l:
         items:
           type: integer
@@ -151,11 +151,9 @@ definitions:
     type: object
   pkg.PresentCar:
     properties:
-      ID:
+      camera_id:
         type: integer
-      cameraID:
-        type: integer
-      carDetailsID:
+      car_details_id:
         type: integer
       confidence:
         type: integer
@@ -166,22 +164,67 @@ definitions:
       extra:
         additionalProperties: true
         type: object
-      lastZoneID:
+      id:
+        type: integer
+      last_zone_id:
         type: integer
       lpn:
         type: string
-      transactionDate:
+      transaction_date:
         type: string
     required:
-    - cameraID
-    - carDetailsID
+    - camera_id
+    - car_details_id
     - confidence
     - currZoneID
     - direction
     - extra
-    - lastZoneID
+    - last_zone_id
     - lpn
-    - transactionDate
+    - transaction_date
+    type: object
+  pkg.PresentCarHistory:
+    properties:
+      cam_body:
+        additionalProperties: true
+        type: object
+      cam_id:
+        type: integer
+      confidence:
+        type: integer
+      cur_zone_id:
+        type: integer
+      extra:
+        additionalProperties: true
+        type: object
+      id:
+        type: integer
+      image:
+        type: string
+      last_zone_id:
+        type: integer
+      lpn:
+        type: string
+    required:
+    - cam_body
+    - cam_id
+    - confidence
+    - cur_zone_id
+    - extra
+    - image
+    - last_zone_id
+    - lpn
+    type: object
+  pkg.Settings:
+    properties:
+      def_lang:
+        type: string
+      fuzzyLogic:
+        type: boolean
+      logo:
+        type: string
+      timeout_screenKiosk:
+        type: integer
     type: object
   pkg.TokenRequest:
     properties:
@@ -760,6 +803,199 @@ paths:
       summary: Update a client credential
       tags:
       - Client Credentials
+  /fyc/history:
+    get:
+      description: Get a list of all history records
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of history records
+          schema:
+            items:
+              $ref: '#/definitions/pkg.PresentCarHistory'
+            type: array
+        "404":
+          description: No history records found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all history records
+      tags:
+      - History
+    post:
+      consumes:
+      - application/json
+      description: Add a new history record to the database
+      parameters:
+      - description: History record data
+        in: body
+        name: history
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.PresentCarHistory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: History record created successfully
+          schema:
+            $ref: '#/definitions/pkg.PresentCarHistory'
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to create a new history record
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new history record
+      tags:
+      - History
+  /fyc/history/{id}:
+    delete:
+      description: Delete a history record by ID
+      parameters:
+      - description: History record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: History record deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: History record not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete history record
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a history record by ID
+      tags:
+      - History
+    get:
+      description: Get a specific history record by ID
+      parameters:
+      - description: History record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.PresentCarHistory'
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: History record not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get history record by ID
+      tags:
+      - History
+    put:
+      consumes:
+      - application/json
+      description: Update an existing history record by ID
+      parameters:
+      - description: History record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated history record data
+        in: body
+        name: history
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.PresentCarHistory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: History record updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload or ID mismatch
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: History record not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update history record
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a history record by ID
+      tags:
+      - History
+  /fyc/history/{lpn}:
+    get:
+      description: Get a specific history record by LPN
+      parameters:
+      - description: History record LPN
+        in: path
+        name: lpn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.PresentCarHistory'
+        "400":
+          description: Invalid LPN format
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: History record not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get history record by LPN
+      tags:
+      - History
   /fyc/presentcars:
     get:
       description: Get a list of all present cars
@@ -1182,6 +1418,29 @@ paths:
       summary: Update a zone image by ID
       tags:
       - Zones Image
+  /getSettings:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: |-
+        Get Settings
+        Get settings data --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+      parameters:
+      - description: Bearer Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Settings'
+      summary: Get Settings
+      tags:
+      - Car Location
   /getpicture:
     get:
       description: Get an image using the picture name --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9

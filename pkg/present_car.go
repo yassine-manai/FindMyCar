@@ -3,7 +3,6 @@ package pkg
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/uptrace/bun"
@@ -11,32 +10,32 @@ import (
 
 type PresentCar struct {
 	bun.BaseModel   `json:"-" bun:"table:presentcar"`
-	ID              *int                   `bun:"id,pk,autoincrement" json:"ID"`
-	CarDetailsID    *int                   `bun:"carDetailsID" json:"carDetailsID" binding:"required"`
-	CameraID        *int                   `bun:"cameraID" json:"cameraID" binding:"required"`
+	ID              *int                   `bun:"id,pk,autoincrement" json:"id"`
+	CarDetailsID    *int                   `bun:"car_details_id" json:"car_details_id" binding:"required"`
+	CameraID        *int                   `bun:"camera_id" json:"camera_id" binding:"required"`
 	Confidence      *int                   `bun:"confidence" json:"confidence" binding:"required"`
-	CurrZoneID      *int                   `bun:"currZoneID" json:"currZoneID" binding:"required"`
+	CurrZoneID      *int                   `bun:"curr_zone_id" json:"currZoneID" binding:"required"`
+	LastZoneID      *int                   `bun:"last_zone_id" json:"last_zone_id" binding:"required"`
 	Direction       string                 `bun:"direction" json:"direction" binding:"required"`
-	LastZoneID      *int                   `bun:"lastZoneID" json:"lastZoneID" binding:"required"`
 	LPN             string                 `bun:"lpn" json:"lpn" binding:"required"`
-	TransactionDate string                 `bun:"transactionDate" json:"transactionDate" binding:"required"`
-	Extra           map[string]interface{} `bun:"extra,type:jsonb" time_format:"01/01/2005" json:"extra" binding:"required"`
+	TransactionDate string                 `bun:"transaction_date" json:"transaction_date" binding:"required"`
+	Extra           map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
 }
 
 type ResponsePC struct {
 	bun.BaseModel   `json:"-" bun:"table:presentcar"`
-	ID              *int   `bun:"id,pk,autoincrement"`
-	CarDetailsID    *int   `bun:"carDetailsID"`
-	CameraID        *int   `bun:"cameraID"`
-	Confidence      *int   `bun:"confidence"`
-	CurrZoneID      *int   `bun:"currZoneID"`
-	Direction       string `bun:"direction"`
-	LastZoneID      *int   `bun:"lastZoneID"`
-	LPN             string `bun:"lpn"`
-	TransactionDate string `bun:"transactionDate"`
+	ID              *int   `bun:"id" json:"id"`
+	CarDetailsID    *int   `bun:"car_details_id" json:"car_details_id"`
+	CameraID        *int   `bun:"camera_id" json:"camera_id"`
+	Confidence      *int   `bun:"confidence" json:"confidence"`
+	CurrZoneID      *int   `bun:"curr_zone_id" json:"curr_zone_id"`
+	LastZoneID      *int   `bun:"last_zone_id" json:"last_zone_id"`
+	Direction       string `bun:"direction" json:"direction"`
+	LPN             string `bun:"lpn" json:"lpn"`
+	TransactionDate string `bun:"transaction_date" json:"transaction_date"`
 }
 
-type CustomTime struct {
+/* type CustomTime struct {
 	time.Time
 }
 
@@ -51,12 +50,12 @@ func (ct *CustomTime) Scan(value interface{}) error {
 	}
 	ct.Time = parsedTime
 	return nil
-}
+} */
 
 // Get all present cars
-func GetAllPresentExtra(ctx context.Context, db *bun.DB) ([]PresentCar, error) {
+func GetAllPresentExtra(ctx context.Context) ([]PresentCar, error) {
 	var cars []PresentCar
-	err := db.NewSelect().Model(&cars).Column().Scan(ctx)
+	err := Dbg.NewSelect().Model(&cars).Column().Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all present cars with Extra: %w", err)
 	}
@@ -64,9 +63,9 @@ func GetAllPresentExtra(ctx context.Context, db *bun.DB) ([]PresentCar, error) {
 }
 
 // Get all present cars
-func GetAllPresentCars(ctx context.Context, db *bun.DB) ([]ResponsePC, error) {
+func GetAllPresentCars(ctx context.Context) ([]ResponsePC, error) {
 	var Pcars []ResponsePC
-	err := db.NewSelect().Model(&Pcars).Scan(ctx)
+	err := Dbg.NewSelect().Model(&Pcars).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all present cars: %w", err)
 	}
@@ -74,9 +73,9 @@ func GetAllPresentCars(ctx context.Context, db *bun.DB) ([]ResponsePC, error) {
 }
 
 // Get present car by LPN
-func GetPresentCarByLPN(ctx context.Context, db *bun.DB, lpn string) (*PresentCar, error) {
+func GetPresentCarByLPN(ctx context.Context, lpn string) (*PresentCar, error) {
 	car := new(PresentCar)
-	err := db.NewSelect().Model(car).Where("lpn = ?", lpn).Scan(ctx)
+	err := Dbg.NewSelect().Model(car).Where("lpn = ?", lpn).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting present car by LPN: %w", err)
 	}
@@ -84,9 +83,9 @@ func GetPresentCarByLPN(ctx context.Context, db *bun.DB, lpn string) (*PresentCa
 }
 
 // Create a new present car
-func CreatePresentCar(ctx context.Context, db *bun.DB, car *PresentCar) error {
+func CreatePresentCar(ctx context.Context, car *PresentCar) error {
 	// Insert and get the auto-generated ID from the database
-	_, err := db.NewInsert().Model(car).Returning("id").Exec(ctx)
+	_, err := Dbg.NewInsert().Model(car).Returning("id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating present car: %w", err)
 	}
@@ -96,8 +95,8 @@ func CreatePresentCar(ctx context.Context, db *bun.DB, car *PresentCar) error {
 }
 
 // Update a present car by ID and return rows affected
-func UpdatePresentCar(ctx context.Context, db *bun.DB, id int, updates *PresentCar) (int64, error) {
-	res, err := db.NewUpdate().Model(updates).Where("id = ?", id).Exec(ctx)
+func UpdatePresentCar(ctx context.Context, id int, updates *PresentCar) (int64, error) {
+	res, err := Dbg.NewUpdate().Model(updates).Where("id = ?", id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating present car: %w", err)
 	}
@@ -109,9 +108,9 @@ func UpdatePresentCar(ctx context.Context, db *bun.DB, id int, updates *PresentC
 }
 
 // update by LPN
-func UpdatePresentCarByLpn(ctx context.Context, db *bun.DB, lpn string, updates *PresentCar) (int64, error) {
+func UpdatePresentCarByLpn(ctx context.Context, lpn string, updates *PresentCar) (int64, error) {
 	log.Debug().Str("lpn", lpn).Msgf("Update Present Car by LPN:%v", updates)
-	res, err := db.NewUpdate().Model(updates).Where("lpn = ?", lpn).Exec(ctx)
+	res, err := Dbg.NewUpdate().Model(updates).Where("lpn = ?", lpn).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating present car: %w", err)
 	}
@@ -123,8 +122,8 @@ func UpdatePresentCarByLpn(ctx context.Context, db *bun.DB, lpn string, updates 
 }
 
 // Delete a present car by ID and return rows affected
-func DeletePresentCar(ctx context.Context, db *bun.DB, id int) (int64, error) {
-	res, err := db.NewDelete().Model(&PresentCar{}).Where("id = ?", id).Exec(ctx)
+func DeletePresentCar(ctx context.Context, id int) (int64, error) {
+	res, err := Dbg.NewDelete().Model(&PresentCar{}).Where("id = ?", id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting present car: %w", err)
 	}

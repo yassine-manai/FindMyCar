@@ -11,13 +11,13 @@ import (
 type ApiManage struct {
 	bun.BaseModel `json:"-" bun:"table:api_management"`
 
-	ClientID     string `bun:"client_id,pk"`
-	ClientSecret string `bun:"client_secret" binding:"required"`
-	Fuzzy        string `bun:"fuzzy" binding:"required"`
+	ClientID     string `bun:"client_id,pk" json:"client_id"`
+	ClientSecret string `bun:"client_secret" binding:"required" json:"client_secret"`
+	Fuzzy        string `bun:"fuzzy" binding:"required" json:"fuzzy"`
 }
 
-func AddClientCred(ctx context.Context, db *bun.DB, apimgnt *ApiManage) error {
-	_, err := db.NewInsert().Model(apimgnt).Exec(ctx)
+func AddClientCred(ctx context.Context, apimgnt *ApiManage) error {
+	_, err := Dbg.NewInsert().Model(apimgnt).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error adding api_cred: %w", err)
 	}
@@ -25,10 +25,10 @@ func AddClientCred(ctx context.Context, db *bun.DB, apimgnt *ApiManage) error {
 	return nil
 }
 
-func GetClientCredById(ctx context.Context, db *bun.DB, clientID string) (*ApiManage, error) {
+func GetClientCredById(ctx context.Context, clientID string) (*ApiManage, error) {
 	api := new(ApiManage)
 
-	err := db.NewSelect().Model(api).Where("client_id = ?", clientID).Scan(ctx)
+	err := Dbg.NewSelect().Model(api).Where("client_id = ?", clientID).Scan(ctx)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -39,10 +39,10 @@ func GetClientCredById(ctx context.Context, db *bun.DB, clientID string) (*ApiMa
 	return api, nil
 }
 
-func GetClientCredBySecret(ctx context.Context, db *bun.DB, clientSecret string) (*ApiManage, error) {
+func GetClientCredBySecret(ctx context.Context, clientSecret string) (*ApiManage, error) {
 	api := new(ApiManage)
 
-	err := db.NewSelect().Model(api).Where("client_secret = ?", clientSecret).Scan(ctx)
+	err := Dbg.NewSelect().Model(api).Where("client_secret = ?", clientSecret).Scan(ctx)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -53,18 +53,18 @@ func GetClientCredBySecret(ctx context.Context, db *bun.DB, clientSecret string)
 	return api, nil
 }
 
-func GetAllClientCred(ctx context.Context, db *bun.DB) ([]ApiManage, error) {
+func GetAllClientCred(ctx context.Context) ([]ApiManage, error) {
 	var apm []ApiManage
-	err := db.NewSelect().Model(&apm).Scan(ctx)
+	err := Dbg.NewSelect().Model(&apm).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Client Credentials: %w", err)
 	}
 	return apm, nil
 }
 
-func UpdateClientCred(ctx context.Context, db *bun.DB, clientID string, updatedClientCred *ApiManage) (int64, error) {
+func UpdateClientCred(ctx context.Context, clientID string, updatedClientCred *ApiManage) (int64, error) {
 	log.Debug().Msgf("Updating clientcred with ClientID: %s\n", clientID)
-	result, err := db.NewUpdate().
+	result, err := Dbg.NewUpdate().
 		Model(updatedClientCred).
 		Where("client_id = ?", clientID).
 		Exec(ctx)
@@ -80,10 +80,10 @@ func UpdateClientCred(ctx context.Context, db *bun.DB, clientID string, updatedC
 	return rowsAffected, nil
 }
 
-func DeleteClientCred(ctx context.Context, db *bun.DB, clientID string) (int64, error) {
+func DeleteClientCred(ctx context.Context, clientID string) (int64, error) {
 	log.Debug().Msgf("Deleting Client with ClientID: %s", clientID)
 
-	result, err := db.NewDelete().Model((*ApiManage)(nil)).Where("client_id = ?", clientID).Exec(ctx)
+	result, err := Dbg.NewDelete().Model((*ApiManage)(nil)).Where("client_id = ?", clientID).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting client cred with ClientID %s: %w", clientID, err)
 	}

@@ -10,7 +10,7 @@ import (
 
 type CarDetail struct {
 	bun.BaseModel `json:"-" bun:"table:car_detail"`
-	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"id"`
 	CamBody       map[string]interface{} `bun:"cam_body,type:jsonb" json:"cam_body" binding:"required"`
 	Image1        []byte                 `bun:"image1" json:"image1" binding:"required"`
 	Image2        []byte                 `bun:"image2" json:"image2" binding:"required"`
@@ -20,17 +20,17 @@ type CarDetail struct {
 
 type ResponseCarDetail struct {
 	bun.BaseModel `json:"-" bun:"table:car_detail"`
-	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
-	CamBody       map[string]interface{} `bun:"cam_body,type:jsonb" json:"cam_body"`
+	ID            int                    `bun:"id" json:"ID"`
+	CamBody       map[string]interface{} `bun:"cam_body" json:"cam_body"`
 	Image1        []byte                 `bun:"image1" json:"image1"`
 	Image2        []byte                 `bun:"image2" json:"image2"`
 	Image3        []byte                 `bun:"image3" json:"image3"`
 }
 
 // Get all car details with extra data
-func GetAllCarDetailExtra(ctx context.Context, db *bun.DB) ([]CarDetail, error) {
+func GetAllCarDetailExtra(ctx context.Context) ([]CarDetail, error) {
 	var cars []CarDetail
-	err := db.NewSelect().Model(&cars).Scan(ctx)
+	err := Dbg.NewSelect().Model(&cars).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all car details with extra data: %w", err)
 	}
@@ -38,9 +38,9 @@ func GetAllCarDetailExtra(ctx context.Context, db *bun.DB) ([]CarDetail, error) 
 }
 
 // Get all car details
-func GetAllCarDetail(ctx context.Context, db *bun.DB) ([]ResponseCarDetail, error) {
+func GetAllCarDetail(ctx context.Context) ([]ResponseCarDetail, error) {
 	var cars []ResponseCarDetail
-	err := db.NewSelect().Model(&cars).Scan(ctx)
+	err := Dbg.NewSelect().Model(&cars).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all car details: %w", err)
 	}
@@ -48,9 +48,9 @@ func GetAllCarDetail(ctx context.Context, db *bun.DB) ([]ResponseCarDetail, erro
 }
 
 // Get car detail by ID
-func GetCarDetailByID(ctx context.Context, db *bun.DB, id int) (*CarDetail, error) {
+func GetCarDetailByID(ctx context.Context, id int) (*CarDetail, error) {
 	car := new(CarDetail)
-	err := db.NewSelect().Model(car).Where("id = ?", id).Scan(ctx)
+	err := Dbg.NewSelect().Model(car).Where("id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting car detail by ID: %w", err)
 	}
@@ -58,9 +58,9 @@ func GetCarDetailByID(ctx context.Context, db *bun.DB, id int) (*CarDetail, erro
 }
 
 // Create a new car detail
-func CreateCarDetail(ctx context.Context, db *bun.DB, newCar *CarDetail) error {
+func CreateCarDetail(ctx context.Context, newCar *CarDetail) error {
 	// Insert and get the auto-generated ID from the database
-	_, err := db.NewInsert().Model(newCar).Returning("id").Exec(ctx)
+	_, err := Dbg.NewInsert().Model(newCar).Returning("id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating car detail: %w", err)
 	}
@@ -70,8 +70,8 @@ func CreateCarDetail(ctx context.Context, db *bun.DB, newCar *CarDetail) error {
 }
 
 // Update a car detail by ID
-func UpdateCarDetail(ctx context.Context, db *bun.DB, carID int, updates *CarDetail) (int64, error) {
-	res, err := db.NewUpdate().Model(updates).Where("id = ?", carID).ExcludeColumn("id").Exec(ctx)
+func UpdateCarDetail(ctx context.Context, carID int, updates *CarDetail) (int64, error) {
+	res, err := Dbg.NewUpdate().Model(updates).Where("id = ?", carID).ExcludeColumn("id").Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating car detail with ID %d: %w", carID, err)
 	}
@@ -83,8 +83,8 @@ func UpdateCarDetail(ctx context.Context, db *bun.DB, carID int, updates *CarDet
 }
 
 // Delete a car detail by ID
-func DeleteCarDetail(ctx context.Context, db *bun.DB, id int) (int64, error) {
-	res, err := db.NewDelete().Model(&CarDetail{}).Where("id = ?", id).Exec(ctx)
+func DeleteCarDetail(ctx context.Context, id int) (int64, error) {
+	res, err := Dbg.NewDelete().Model(&CarDetail{}).Where("id = ?", id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error deleting car detail with ID %d: %w", id, err)
 	}

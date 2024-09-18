@@ -789,6 +789,290 @@ const docTemplate = `{
                 }
             }
         },
+        "/fyc/history": {
+            "get": {
+                "description": "Get a list of all history records",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "Get all history records",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Include extra information if 'yes'",
+                        "name": "extra",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of history records",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pkg.PresentCarHistory"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No history records found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new history record to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "Add a new history record",
+                "parameters": [
+                    {
+                        "description": "History record data",
+                        "name": "history",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.PresentCarHistory"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "History record created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.PresentCarHistory"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create a new history record",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/history/{id}": {
+            "get": {
+                "description": "Get a specific history record by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "Get history record by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "History record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.PresentCarHistory"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "History record not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing history record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "Update a history record by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "History record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated history record data",
+                        "name": "history",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.PresentCarHistory"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "History record updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload or ID mismatch",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "History record not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update history record",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a history record by ID",
+                "tags": [
+                    "History"
+                ],
+                "summary": "Delete a history record by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "History record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "History record deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID format",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "History record not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete history record",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/history/{lpn}": {
+            "get": {
+                "description": "Get a specific history record by LPN",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "Get history record by LPN",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "History record LPN",
+                        "name": "lpn",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.PresentCarHistory"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid LPN format",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "History record not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/fyc/presentcars": {
             "get": {
                 "description": "Get a list of all present cars",
@@ -1424,6 +1708,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/getSettings": {
+            "get": {
+                "description": "Get Settings\nGet settings data --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car Location"
+                ],
+                "summary": "Get Settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer Token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Settings"
+                        }
+                    }
+                }
+            }
+        },
         "/getpicture": {
             "get": {
                 "description": "Get an image using the picture name --- Token is eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
@@ -1518,14 +1834,14 @@ const docTemplate = `{
         "pkg.ApiManage": {
             "type": "object",
             "required": [
-                "clientSecret",
+                "client_secret",
                 "fuzzy"
             ],
             "properties": {
-                "clientID": {
+                "client_id": {
                     "type": "string"
                 },
-                "clientSecret": {
+                "client_secret": {
                     "type": "string"
                 },
                 "fuzzy": {
@@ -1548,9 +1864,6 @@ const docTemplate = `{
                 "zone_id_out"
             ],
             "properties": {
-                "ID": {
-                    "type": "integer"
-                },
                 "cam_ip": {
                     "type": "string"
                 },
@@ -1576,6 +1889,9 @@ const docTemplate = `{
                     "type": "object",
                     "additionalProperties": true
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "zone_id_in": {
                     "type": "integer"
                 },
@@ -1594,9 +1910,6 @@ const docTemplate = `{
                 "image3"
             ],
             "properties": {
-                "ID": {
-                    "type": "integer"
-                },
                 "cam_body": {
                     "type": "object",
                     "additionalProperties": true
@@ -1604,6 +1917,9 @@ const docTemplate = `{
                 "extra": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "image1": {
                     "type": "array",
@@ -1629,7 +1945,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "facility": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "picture_name": {
                     "type": "string"
@@ -1695,12 +2011,12 @@ const docTemplate = `{
                 "zone_id"
             ],
             "properties": {
-                "ID": {
-                    "type": "integer"
-                },
                 "extra": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "image_l": {
                     "type": "array",
@@ -1733,24 +2049,21 @@ const docTemplate = `{
         "pkg.PresentCar": {
             "type": "object",
             "required": [
-                "cameraID",
-                "carDetailsID",
+                "camera_id",
+                "car_details_id",
                 "confidence",
                 "currZoneID",
                 "direction",
                 "extra",
-                "lastZoneID",
+                "last_zone_id",
                 "lpn",
-                "transactionDate"
+                "transaction_date"
             ],
             "properties": {
-                "ID": {
+                "camera_id": {
                     "type": "integer"
                 },
-                "cameraID": {
-                    "type": "integer"
-                },
-                "carDetailsID": {
+                "car_details_id": {
                     "type": "integer"
                 },
                 "confidence": {
@@ -1766,14 +2079,78 @@ const docTemplate = `{
                     "type": "object",
                     "additionalProperties": true
                 },
-                "lastZoneID": {
+                "id": {
+                    "type": "integer"
+                },
+                "last_zone_id": {
                     "type": "integer"
                 },
                 "lpn": {
                     "type": "string"
                 },
-                "transactionDate": {
+                "transaction_date": {
                     "type": "string"
+                }
+            }
+        },
+        "pkg.PresentCarHistory": {
+            "type": "object",
+            "required": [
+                "cam_body",
+                "cam_id",
+                "confidence",
+                "cur_zone_id",
+                "extra",
+                "image",
+                "last_zone_id",
+                "lpn"
+            ],
+            "properties": {
+                "cam_body": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "cam_id": {
+                    "type": "integer"
+                },
+                "confidence": {
+                    "type": "integer"
+                },
+                "cur_zone_id": {
+                    "type": "integer"
+                },
+                "extra": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "last_zone_id": {
+                    "type": "integer"
+                },
+                "lpn": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.Settings": {
+            "type": "object",
+            "properties": {
+                "def_lang": {
+                    "type": "string"
+                },
+                "fuzzyLogic": {
+                    "type": "boolean"
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "timeout_screenKiosk": {
+                    "type": "integer"
                 }
             }
         },

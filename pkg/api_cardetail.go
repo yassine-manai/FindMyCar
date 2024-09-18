@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/uptrace/bun"
 )
 
 // GetCarDetails godoc
@@ -20,12 +19,12 @@ import (
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200		{array}		CarDetail
 //	@Router			/fyc/carDetails [get]
-func GetCarDetailsAPI(c *gin.Context, db *bun.DB) {
+func GetCarDetailsAPI(c *gin.Context) {
 	ctx := context.Background()
 	extraReq := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extraReq) == "true" || strings.ToLower(extraReq) == "1" || strings.ToLower(extraReq) == "yes" {
-		carDetails, err := GetAllCarDetailExtra(ctx, db)
+		carDetails, err := GetAllCarDetailExtra(ctx)
 		if err != nil {
 			log.Err(err).Msg("Error getting all car details with extra data")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -49,7 +48,7 @@ func GetCarDetailsAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	carDetails, err := GetAllCarDetail(ctx, db)
+	carDetails, err := GetAllCarDetail(ctx)
 	if err != nil {
 		log.Err(err).Msg("Error getting all car details")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -82,7 +81,7 @@ func GetCarDetailsAPI(c *gin.Context, db *bun.DB) {
 //	@Param			CarDetail	body		CarDetail	true	"Car detail data"
 //	@Success		201		{object}	CarDetail
 //	@Router			/fyc/carDetails [post]
-func CreateCarDetailAPI(c *gin.Context, db *bun.DB) {
+func CreateCarDetailAPI(c *gin.Context) {
 	var carDetail CarDetail
 
 	if err := c.ShouldBindJSON(&carDetail); err != nil {
@@ -96,7 +95,7 @@ func CreateCarDetailAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	if err := CreateCarDetail(ctx, db, &carDetail); err != nil {
+	if err := CreateCarDetail(ctx, &carDetail); err != nil {
 		log.Err(err).Msg("Error creating new car detail")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create a new car detail",
@@ -118,7 +117,7 @@ func CreateCarDetailAPI(c *gin.Context, db *bun.DB) {
 //	@Param			id	path		int	true	"CarDetail ID"
 //	@Success		200	{object}	CarDetail
 //	@Router			/fyc/carDetails/{id} [get]
-func GetCarDetailsByIdAPI(c *gin.Context, db *bun.DB) {
+func GetCarDetailsByIdAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -132,7 +131,7 @@ func GetCarDetailsByIdAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	carDetail, err := GetCarDetailByID(ctx, db, id)
+	carDetail, err := GetCarDetailByID(ctx, id)
 	if err != nil {
 		log.Err(err).Str("id", idStr).Msg("Error retrieving carDetail by ID")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -159,7 +158,7 @@ func GetCarDetailsByIdAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Car detail not found"
 //	@Router			/fyc/carDetails/{id} [put]
-func UpdateCarDetailByIdAPI(c *gin.Context, db *bun.DB) {
+func UpdateCarDetailByIdAPI(c *gin.Context) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -198,7 +197,7 @@ func UpdateCarDetailByIdAPI(c *gin.Context, db *bun.DB) {
 
 	// Call the service to update the car detail
 	ctx := context.Background()
-	rowsAffected, err := UpdateCarDetail(ctx, db, id, &updates)
+	rowsAffected, err := UpdateCarDetail(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating car detail by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -236,7 +235,7 @@ func UpdateCarDetailByIdAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400		{object}	map[string]interface{}	"Invalid request"
 //	@Failure		404		{object}	map[string]interface{}	"Car detail not found"
 //	@Router			/fyc/carDetails/{id} [delete]
-func DeleteCarDetailAPI(c *gin.Context, db *bun.DB) {
+func DeleteCarDetailAPI(c *gin.Context) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -252,7 +251,7 @@ func DeleteCarDetailAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := DeleteCarDetail(ctx, db, id)
+	rowsAffected, err := DeleteCarDetail(ctx, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting car detail")
 		c.JSON(http.StatusInternalServerError, gin.H{

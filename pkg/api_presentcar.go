@@ -10,7 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/uptrace/bun"
 )
 
 // GetAllPresentCars godoc
@@ -23,12 +22,12 @@ import (
 //
 // @Success		200	{array}		PresentCar
 // @Router			/fyc/presentcars [get]
-func GetPresentCarsAPI(c *gin.Context, db *bun.DB) {
+func GetPresentCarsAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
-		cars, err := GetAllPresentExtra(ctx, db)
+		cars, err := GetAllPresentExtra(ctx)
 		if err != nil {
 			log.Err(err).Msg("Error getting all present cars with extra data ")
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -52,7 +51,7 @@ func GetPresentCarsAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	Pcars, err := GetAllPresentCars(ctx, db)
+	Pcars, err := GetAllPresentCars(ctx)
 	if err != nil {
 		log.Err(err).Msg("Error getting all present cars")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -85,13 +84,13 @@ func GetPresentCarsAPI(c *gin.Context, db *bun.DB) {
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
 //	@Success		200	{object}	PresentCar
 //	@Router			/fyc/presentcars/{lpn} [get]
-func GetPresentCarByLPNAPI(c *gin.Context, db *bun.DB) {
+func GetPresentCarByLPNAPI(c *gin.Context) {
 
 	lpn := c.Param("lpn")
 	extra_req := c.Query("extra")
 
 	ctx := context.Background()
-	car, err := GetPresentCarByLPN(ctx, db, lpn)
+	car, err := GetPresentCarByLPN(ctx, lpn)
 	if err != nil {
 		log.Err(err).Str("lpn", lpn).Msg("Error retrieving present car by LPN")
 		c.JSON(http.StatusNotFound, gin.H{
@@ -147,7 +146,7 @@ func GetPresentCarByLPNAPI(c *gin.Context, db *bun.DB) {
 //	@Param			presentCar	body		PresentCar	true	"Present Car data"
 //	@Success		201		{object}	PresentCar
 //	@Router			/fyc/presentcars [post]
-func CreatePresentCarAPI(c *gin.Context, db *bun.DB) {
+func CreatePresentCarAPI(c *gin.Context) {
 	var car PresentCar
 	ctx := context.Background()
 
@@ -192,7 +191,7 @@ func CreatePresentCarAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	// Insert the new car into the database
-	if err := CreatePresentCar(ctx, db, &car); err != nil {
+	if err := CreatePresentCar(ctx, &car); err != nil {
 		log.Err(err).Msg("Error creating present car")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create present car",
@@ -229,7 +228,7 @@ func CreatePresentCarAPI(c *gin.Context, db *bun.DB) {
 //	@Param			presentCar	body		PresentCar	true	"Updated present car data"
 //	@Success		200		{object}	PresentCar
 //	@Router			/fyc/presentcars/{id} [put]
-func UpdatePresentCarByIdAPI(c *gin.Context, db *bun.DB) {
+func UpdatePresentCarByIdAPI(c *gin.Context) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -293,8 +292,8 @@ func UpdatePresentCarByIdAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	// Call the service to update the present car
-	rowsAffected, err := UpdatePresentCar(ctx, db, id, &updates)
+	ctx := context.Background()
+	rowsAffected, err := UpdatePresentCar(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating present car by ID")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -333,10 +332,10 @@ func UpdatePresentCarByIdAPI(c *gin.Context, db *bun.DB) {
 //	@Param			presentCar	body		PresentCar	true	"Updated present car data by lpn"
 //	@Success		200		{object}	PresentCar
 //	@Router			/fyc/presentcars [put]
-func UpdatePresentCarBylpnAPI(c *gin.Context, db *bun.DB) {
+func UpdatePresentCarBylpnAPI(c *gin.Context) {
 
 	lpn := c.Query("lpn")
-	log.Info().Msgf("provided parameters :%v", lpn)
+	log.Info().Str("lpn", lpn).Msg("provided lpn parameters ")
 	var updates PresentCar
 	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -347,35 +346,35 @@ func UpdatePresentCarBylpnAPI(c *gin.Context, db *bun.DB) {
 		return
 	}
 
-	if !functions.Contains(CarParkList, *updates.CurrZoneID) {
+	if !functions.Contains(Zonelist, *updates.CurrZoneID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Carpark not found in CarParkList",
-			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.CurrZoneID),
+			"error":   "Current ZoneID not found",
+			"message": fmt.Sprintf("Zone ID %d does not exist", *updates.CurrZoneID),
 			"code":    9,
 		})
 		return
 	}
 
-	if !functions.Contains(CameraList, *updates.LastZoneID) {
+	if !functions.Contains(Zonelist, *updates.LastZoneID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Carpark not found in CarParkList",
-			"message": fmt.Sprintf("Zone with ID %d does not exist", updates.LastZoneID),
+			"error":   "Last ZoneID not found",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", *updates.LastZoneID),
 			"code":    9,
 		})
 		return
 	}
 
-	if !functions.Contains(CarParkList, *updates.CameraID) {
+	if !functions.Contains(CameraList, *updates.CameraID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Carpark not found in CarParkList",
-			"message": fmt.Sprintf("Camera with ID %d does not exist", updates.CameraID),
+			"error":   "Camera not found",
+			"message": fmt.Sprintf("Camera with ID %d does not exist", *updates.CameraID),
 			"code":    9,
 		})
 		return
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := UpdatePresentCarByLpn(ctx, db, lpn, &updates)
+	rowsAffected, err := UpdatePresentCarByLpn(ctx, lpn, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating present car")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -427,7 +426,7 @@ func UpdatePresentCarBylpnAPI(c *gin.Context, db *bun.DB) {
 //	@Failure		400			{object}	string	"Bad Request"
 //	@Failure		404			{object}	string	"Not Found"
 //	@Router			/fyc/presentcars/{id} [delete]
-func DeletePresentCarAPI(c *gin.Context, db *bun.DB) {
+func DeletePresentCarAPI(c *gin.Context) {
 
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -441,7 +440,7 @@ func DeletePresentCarAPI(c *gin.Context, db *bun.DB) {
 	}
 
 	ctx := context.Background()
-	rowsAffected, err := DeletePresentCar(ctx, db, id)
+	rowsAffected, err := DeletePresentCar(ctx, id)
 	if err != nil {
 		log.Err(err).Msg("Error deleting present car")
 		c.JSON(http.StatusInternalServerError, gin.H{
