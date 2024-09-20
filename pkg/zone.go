@@ -10,7 +10,7 @@ import (
 
 type Zone struct {
 	bun.BaseModel `json:"-" bun:"table:zone"`
-	ID            int                    `bun:"id,pk,autoincrement" json:"ID"`
+	ID            int                    `bun:"id,pk,autoincrement" json:"id"`
 	ZoneID        *int                   `bun:"zone_id" json:"zone_id" binding:"required"`
 	MaxCapacity   *int                   `bun:"max_capacity" json:"max_capacity" binding:"required"`
 	Present       *int                   `bun:"present" json:"present" binding:"required"`
@@ -76,7 +76,10 @@ func CreateZone(ctx context.Context, zone *Zone) error {
 
 // Update a zone by ID
 func UpdateZone(ctx context.Context, zone_id int, updates *Zone) (int64, error) {
-	res, err := Dbg.NewUpdate().Model(updates).Where("zone_id = ?", zone_id).ExcludeColumn("ID").Exec(ctx)
+	res, err := Dbg.NewUpdate().
+		Model(updates).
+		Where("zone_id = ?", zone_id).
+		Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating zone with id %d: %w", zone_id, err)
 	}

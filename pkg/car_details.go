@@ -12,9 +12,9 @@ type CarDetail struct {
 	bun.BaseModel `json:"-" bun:"table:car_detail"`
 	ID            int                    `bun:"id,pk,autoincrement" json:"id"`
 	CamBody       map[string]interface{} `bun:"cam_body,type:jsonb" json:"cam_body" binding:"required"`
-	Image1        []byte                 `bun:"image1" json:"image1" binding:"required"`
-	Image2        []byte                 `bun:"image2" json:"image2" binding:"required"`
-	Image3        []byte                 `bun:"image3" json:"image3" binding:"required"`
+	Image1        string                 `bun:"image1,type:bytea" json:"image1" binding:"required"`
+	Image2        string                 `bun:"image2,type:bytea" json:"image2" binding:"required"`
+	Image3        string                 `bun:"image3,type:bytea" json:"image3" binding:"required"`
 	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
 }
 
@@ -22,9 +22,9 @@ type ResponseCarDetail struct {
 	bun.BaseModel `json:"-" bun:"table:car_detail"`
 	ID            int                    `bun:"id" json:"ID"`
 	CamBody       map[string]interface{} `bun:"cam_body" json:"cam_body"`
-	Image1        []byte                 `bun:"image1" json:"image1"`
-	Image2        []byte                 `bun:"image2" json:"image2"`
-	Image3        []byte                 `bun:"image3" json:"image3"`
+	Image1        string                 `bun:"image1" json:"image1"`
+	Image2        string                 `bun:"image2" json:"image2"`
+	Image3        string                 `bun:"image3" json:"image3"`
 }
 
 // Get all car details with extra data

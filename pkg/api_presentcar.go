@@ -337,6 +337,7 @@ func UpdatePresentCarBylpnAPI(c *gin.Context) {
 	lpn := c.Query("lpn")
 	log.Info().Str("lpn", lpn).Msg("provided lpn parameters ")
 	var updates PresentCar
+
 	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
@@ -349,7 +350,7 @@ func UpdatePresentCarBylpnAPI(c *gin.Context) {
 	if !functions.Contains(Zonelist, *updates.CurrZoneID) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Current ZoneID not found",
-			"message": fmt.Sprintf("Zone ID %d does not exist", *updates.CurrZoneID),
+			"message": fmt.Sprintf("Zone ID %v does not exist", *updates.CurrZoneID),
 			"code":    9,
 		})
 		return
@@ -358,7 +359,7 @@ func UpdatePresentCarBylpnAPI(c *gin.Context) {
 	if !functions.Contains(Zonelist, *updates.LastZoneID) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Last ZoneID not found",
-			"message": fmt.Sprintf("Zone with ID %d does not exist", *updates.LastZoneID),
+			"message": fmt.Sprintf("Zone with ID %v does not exist", *updates.LastZoneID),
 			"code":    9,
 		})
 		return
@@ -367,7 +368,7 @@ func UpdatePresentCarBylpnAPI(c *gin.Context) {
 	if !functions.Contains(CameraList, *updates.CameraID) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Camera not found",
-			"message": fmt.Sprintf("Camera with ID %d does not exist", *updates.CameraID),
+			"message": fmt.Sprintf("Camera with ID %v does not exist", *updates.CameraID),
 			"code":    9,
 		})
 		return

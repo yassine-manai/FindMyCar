@@ -1,4 +1,7 @@
 #!/bin/bash
+echo "Export PATH"
+export PATH=$(go env GOPATH)/bin:$PATH
+
 
 echo "Running swag init..."
 swag init

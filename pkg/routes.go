@@ -38,8 +38,8 @@ func SetupRouter() *gin.Engine {
 	r.DELETE("/fyc/zones/:id", DeleteZoneAPI)
 
 	// ZoneImage routes
-	r.GET("/fyc/zonesImage", GetImageZonesAPI)
-	r.GET("/fyc/zonesImage/:id", GetZoneImageByIDAPI)
+	r.GET("/fyc/zonesImages", GetAllImageZonesAPI)
+	r.GET("/fyc/zonesImage", GetZoneImageByIDAPI)
 	r.POST("/fyc/zonesImage", CreateZoneImageAPI)
 	r.PUT("/fyc/zonesImage/:id", UpdateZoneImageByIdAPI)
 	r.DELETE("/fyc/zonesImage/:id", DeleteZoneImageAPI)
@@ -78,6 +78,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/getSettings", getsettings)
 
 	r.POST("/fyc/v1/Auth/token", TokenHandler)
+	r.GET("/fyc/debug", Debuger_api)
 
 	// Swagger  endpoint
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

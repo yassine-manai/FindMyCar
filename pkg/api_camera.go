@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"fmc/functions"
 	"net/http"
 	"strconv"
 	"strings"
@@ -141,6 +142,14 @@ func CreateCameraAPI(c *gin.Context) {
 		return
 	}
 
+	if !functions.Contains(Zonelist, *camera.ZoneIdIn) {
+		*camera.ZoneIdIn = 0
+	}
+
+	if !functions.Contains(Zonelist, *camera.ZoneIdOut) {
+		*camera.ZoneIdOut = 0
+	}
+
 	ctx := context.Background()
 	if err := CreateCamera(ctx, &camera); err != nil {
 		log.Err(err).Msg("Error creating new camera")
@@ -152,6 +161,7 @@ func CreateCameraAPI(c *gin.Context) {
 		return
 	}
 
+	LoadCameralist()
 	c.JSON(http.StatusCreated, camera)
 }
 
@@ -226,6 +236,7 @@ func UpdateCameraAPI(c *gin.Context) {
 		return
 	}
 
+	LoadCameralist()
 	c.JSON(http.StatusOK, gin.H{
 		"message":       "Camera modified successfully",
 		"rows_affected": rowsAffected,
@@ -281,6 +292,7 @@ func DeleteCameraAPI(c *gin.Context) {
 		return
 	}
 
+	LoadCameralist()
 	c.JSON(http.StatusOK, gin.H{
 		"success":      "Camera deleted successfully",
 		"rowsAffected": rowsAffected,

@@ -23,7 +23,7 @@ func Loadzonelist() {
 }
 
 func LoadCarparklist() {
-	log.Debug().Msgf("Prepare Car Park List \n")
+	log.Debug().Msgf("Prepare CarPark List \n")
 	ctx := context.Background()
 
 	CarService, _ := GetAllCarparks(ctx)

@@ -789,6 +789,18 @@ const docTemplate = `{
                 }
             }
         },
+        "/fyc/debug": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Debug"
+                ],
+                "summary": "Debug API",
+                "responses": {}
+            }
+        },
         "/fyc/history": {
             "get": {
                 "description": "Get a list of all history records",
@@ -1526,30 +1538,35 @@ const docTemplate = `{
         },
         "/fyc/zonesImage": {
             "get": {
-                "description": "Get a list of all zones images",
+                "description": "Get a specific zoneimage by either ID or Zone",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Zones Image"
                 ],
-                "summary": "Get all zones image",
+                "summary": "Get zoneimage by field",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Include extra information if 'yes'",
-                        "name": "extra",
-                        "in": "query"
+                        "description": "Search by field (id or zone)",
+                        "name": "field",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Value of the selected field",
+                        "name": "value",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/pkg.ImageZone"
-                            }
+                            "$ref": "#/definitions/pkg.ImageZone"
                         }
                     }
                 }
@@ -1588,33 +1605,6 @@ const docTemplate = `{
             }
         },
         "/fyc/zonesImage/{id}": {
-            "get": {
-                "description": "Get a specific zoneimage by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Zones Image"
-                ],
-                "summary": "Get zoneimage by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ZoneImage ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.ImageZone"
-                        }
-                    }
-                }
-            },
             "put": {
                 "description": "Update an existing zone image by ID",
                 "consumes": [
@@ -1703,6 +1693,37 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/zonesImages": {
+            "get": {
+                "description": "Get a list of all zones images",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones Image"
+                ],
+                "summary": "Get all zones images",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Include extra information if 'yes'",
+                        "name": "extra",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pkg.ImageZone"
+                            }
                         }
                     }
                 }
@@ -1922,22 +1943,13 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image1": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "image2": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "image3": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -2019,16 +2031,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "image_l": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "image_s": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string"
                 },
                 "lang": {
                     "type": "string"
@@ -2203,9 +2209,6 @@ const docTemplate = `{
                 "zone_id"
             ],
             "properties": {
-                "ID": {
-                    "type": "integer"
-                },
                 "carpark_id": {
                     "type": "integer"
                 },
@@ -2215,6 +2218,9 @@ const docTemplate = `{
                 "extra": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "max_capacity": {
                     "type": "integer"

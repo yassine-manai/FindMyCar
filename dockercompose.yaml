@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   fyc:
-    image: yassinemanai/go_fmc:1.2
+    image: yassinemanai/go_fmc:1.5
     container_name: gofyc
     environment:
       SERVER_HOST: 0.0.0.0

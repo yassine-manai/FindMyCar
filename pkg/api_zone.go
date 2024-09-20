@@ -143,6 +143,15 @@ func CreateZoneAPI(c *gin.Context) {
 		return
 	}
 
+	if functions.Contains(Zonelist, *zone.ZoneID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Zone Exist",
+			"message": fmt.Sprintf("Zone with ID %d is found", *zone.ZoneID),
+			"code":    9,
+		})
+		return
+	}
+
 	if err := CreateZone(ctx, &zone); err != nil {
 		log.Err(err).Msg("Error creating new zone")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -166,6 +175,7 @@ func CreateZoneAPI(c *gin.Context) {
 	}
 
 	// Return the response with a 201 status
+	Loadzonelist()
 	c.JSON(http.StatusCreated, response)
 }
 
@@ -225,6 +235,15 @@ func UpdateZoneIdAPI(c *gin.Context) {
 		return
 	}
 
+	if !functions.Contains(Zonelist, *updates.ZoneID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Zone not found ",
+			"message": fmt.Sprintf("Zone with ID %d does not exist", *updates.ZoneID),
+			"code":    9,
+		})
+		return
+	}
+
 	// Call the service to update the present car
 	rowsAffected, err := UpdateZone(ctx, id, &updates)
 	if err != nil {
@@ -245,7 +264,7 @@ func UpdateZoneIdAPI(c *gin.Context) {
 		})
 		return
 	}
-
+	Loadzonelist()
 	c.JSON(http.StatusOK, gin.H{
 		"message":       "Zone modified successfully",
 		"rows_affected": rowsAffected,
@@ -297,7 +316,7 @@ func DeleteZoneAPI(c *gin.Context) {
 		})
 		return
 	}
-
+	Loadzonelist()
 	c.JSON(http.StatusOK, gin.H{
 		"success":      "Zone deleted successfully",
 		"rowsAffected": rowsAffected,

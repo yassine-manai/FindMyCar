@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"context"
+	"fmc/functions"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -140,6 +142,7 @@ func AddCarparkAPI(c *gin.Context) {
 		return
 	}
 
+	LoadCarparklist()
 	c.JSON(http.StatusCreated, carpark)
 }
 
@@ -186,6 +189,15 @@ func UpdateCarparkAPI(c *gin.Context) {
 		return
 	}
 
+	if !functions.Contains(CarParkList, carpark.ID) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Carpark not found ",
+			"message": fmt.Sprintf("Carpark with ID %d does not exist", carpark.ID),
+			"code":    9,
+		})
+		return
+	}
+
 	ctx := context.Background()
 	_, err = UpdateCarpark(ctx, id, &carpark)
 	if err != nil {
@@ -198,7 +210,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 		return
 	}
 
-	// Return success response
+	LoadCarparklist()
 	c.JSON(http.StatusOK, carpark)
 }
 
@@ -243,6 +255,7 @@ func DeleteCarparkAPI(c *gin.Context) {
 		return
 	}
 
+	LoadCarparklist()
 	c.JSON(http.StatusOK, gin.H{
 		"success": "Carpark deleted successfully",
 		"message": rowsAffected,

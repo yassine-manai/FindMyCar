@@ -81,7 +81,7 @@ func CreateCamera(ctx context.Context, newcam *Camera) error {
 
 // Update a camera by ID
 func UpdateCamera(ctx context.Context, cam_id int, updates *Camera) (int64, error) {
-	res, err := Dbg.NewUpdate().Model(updates).Where("zone_id = ?", cam_id).ExcludeColumn("id").Exec(ctx)
+	res, err := Dbg.NewUpdate().Model(updates).Where("id = ?", cam_id).Exec(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("error updating camera with id %d: %w", cam_id, err)
 	}

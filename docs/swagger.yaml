@@ -59,17 +59,11 @@ definitions:
       id:
         type: integer
       image1:
-        items:
-          type: integer
-        type: array
+        type: string
       image2:
-        items:
-          type: integer
-        type: array
+        type: string
       image3:
-        items:
-          type: integer
-        type: array
+        type: string
     required:
     - cam_body
     - extra
@@ -126,13 +120,9 @@ definitions:
       id:
         type: integer
       image_l:
-        items:
-          type: integer
-        type: array
+        type: string
       image_s:
-        items:
-          type: integer
-        type: array
+        type: string
       lang:
         type: string
       zone_id:
@@ -252,8 +242,6 @@ definitions:
     type: object
   pkg.Zone:
     properties:
-      ID:
-        type: integer
       carpark_id:
         type: integer
       description:
@@ -261,6 +249,8 @@ definitions:
       extra:
         additionalProperties: true
         type: object
+      id:
+        type: integer
       max_capacity:
         type: integer
       name:
@@ -803,6 +793,14 @@ paths:
       summary: Update a client credential
       tags:
       - Client Credentials
+  /fyc/debug:
+    get:
+      produces:
+      - application/json
+      responses: {}
+      summary: Debug API
+      tags:
+      - Debug
   /fyc/history:
     get:
       description: Get a list of all history records
@@ -1297,11 +1295,17 @@ paths:
       - Zones
   /fyc/zonesImage:
     get:
-      description: Get a list of all zones images
+      description: Get a specific zoneimage by either ID or Zone
       parameters:
-      - description: Include extra information if 'yes'
+      - description: Search by field (id or zone)
         in: query
-        name: extra
+        name: field
+        required: true
+        type: string
+      - description: Value of the selected field
+        in: query
+        name: value
+        required: true
         type: string
       produces:
       - application/json
@@ -1309,10 +1313,8 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/pkg.ImageZone'
-            type: array
-      summary: Get all zones image
+            $ref: '#/definitions/pkg.ImageZone'
+      summary: Get zoneimage by field
       tags:
       - Zones Image
     post:
@@ -1364,24 +1366,6 @@ paths:
       summary: Delete a zone image
       tags:
       - Zones Image
-    get:
-      description: Get a specific zoneimage by ID
-      parameters:
-      - description: ZoneImage ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pkg.ImageZone'
-      summary: Get zoneimage by ID
-      tags:
-      - Zones Image
     put:
       consumes:
       - application/json
@@ -1416,6 +1400,26 @@ paths:
             additionalProperties: true
             type: object
       summary: Update a zone image by ID
+      tags:
+      - Zones Image
+  /fyc/zonesImages:
+    get:
+      description: Get a list of all zones images
+      parameters:
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.ImageZone'
+            type: array
+      summary: Get all zones images
       tags:
       - Zones Image
   /getSettings:
