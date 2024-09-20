@@ -242,27 +242,10 @@ func CreateZoneImageAPI(c *gin.Context) {
 		return
 	}
 
-	zoneImage.ImageSm = string(ImageSmEnc)
-	fmt.Println("-*-*-*-*-*************************************--------------------------")
-	var a = zoneImage.ImageSm
-
-	var byteArr [64]byte
-	// Fill byteArr with some data
-	copy(byteArr[:], []byte(a))
-
-	// Convert [64]byte to a string by slicing the array first
-	aString := string(byteArr[:])
-	fmt.Println(copy(byteArr[:], []byte(a)))
-
-	fmt.Println("-*-*-*-*-*************************************--------------------------")
-
-	fmt.Print(aString)
-	//zoneImage.ImageLg = ImageLgEnc
-
-	//fmt.Println(string(ImageSmEnc))
-	//fmt.Println(ImageLgEnc)
-
-	fmt.Println("-*-*-*-*-*************************************--------------------------")
+	fmt.Println(len(ImageLgEnc))
+	//fmt.Println("-*-*-*-*-*************************************--------------------------")
+	fmt.Println(len(ImageSmEnc))
+	//fmt.Println("-*-*-*-*-*************************************--------------------------")
 
 	ctx := context.Background()
 
@@ -276,9 +259,6 @@ func CreateZoneImageAPI(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(zoneImage.ImageSm)
-	fmt.Println(zoneImage.ImageLg)
-	fmt.Print(ImageLgEnc)
 	c.JSON(http.StatusCreated, zoneImage)
 }
 

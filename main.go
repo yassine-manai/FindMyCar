@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmc/config"
 	_ "fmc/docs"
@@ -40,9 +41,9 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// List of table models to be created
-	/* models := []interface{}{
-		(*pkg.Carpark)(nil),
+	/* // List of table models to be created
+	models := []interface{}{
+		(*pkg.Carpark)(_),
 		(*pkg.PresentCar)(nil),
 		(*pkg.Zone)(nil),
 		(*pkg.ImageZone)(nil),
@@ -50,11 +51,18 @@ func main() {
 		(*pkg.CarDetail)(nil),
 		(*pkg.ApiManage)(nil),
 		(*pkg.PresentCarHistory)(nil),
-	} */
-	/* ctx := context.Background()
+	}
+	ctx := context.Background()
 	if err := functions.CreateTables(ctx, pkg.Dbg, models); err != nil {
 		fmt.Printf("Failed to create tables: %v", err)
-	} */
+	}
+	*/
+	ctx := context.Background()
+
+	_, PresentCarError := pkg.Dbg.NewCreateTable().Model((*pkg.CarDetail)(nil)).IfNotExists().Exec(ctx)
+	if PresentCarError != nil {
+		panic(PresentCarError)
+	}
 
 	fmt.Println("Tables created successfully")
 

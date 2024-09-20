@@ -157,14 +157,13 @@ func CreateCarDetailAPI(c *gin.Context) {
 		return
 	}
 
-	carDetail.Image1 = string(Image1Enc)
-	carDetail.Image2 = string(Image2Enc)
-	carDetail.Image3 = string(Image3Enc)
+	//carDetail.Image1 = string(Image1Enc)
+	//carDetail.Image2 = string(Image2Enc)
+	//carDetail.Image3 = string(Image3Enc)
 
-	log.Debug().Msg(carDetail.Image1)
-	log.Debug().Msg(carDetail.Image2)
-	log.Debug().Msg(carDetail.Image3)
-	fmt.Scan()
+	fmt.Println(Image1Enc)
+	fmt.Println(Image2Enc)
+	fmt.Println(Image3Enc)
 
 	ctx := context.Background()
 	if err := CreateCarDetail(ctx, &carDetail); err != nil {
