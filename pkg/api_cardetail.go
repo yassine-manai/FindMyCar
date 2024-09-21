@@ -124,7 +124,7 @@ func CreateCarDetailAPI(c *gin.Context) {
 		return
 	}
 
-	Image1Enc, err := functions.Base64ToBytea(carDetail.Image1)
+	Image1Enc, err := functions.DecodeBase64ToByteArray(carDetail.Image1)
 	if err != nil {
 		log.Err(err).Msg("Error converting image 1")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -135,7 +135,7 @@ func CreateCarDetailAPI(c *gin.Context) {
 		return
 	}
 
-	Image2Enc, err := functions.Base64ToBytea(carDetail.Image2)
+	Image2Enc, err := functions.DecodeBase64ToByteArray(carDetail.Image2)
 	if err != nil {
 		log.Err(err).Msg("Error converting image 2")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -146,7 +146,7 @@ func CreateCarDetailAPI(c *gin.Context) {
 		return
 	}
 
-	Image3Enc, err := functions.Base64ToBytea(carDetail.Image3)
+	Image3Enc, err := functions.DecodeBase64ToByteArray(carDetail.Image3)
 	if err != nil {
 		log.Err(err).Msg("Error converting image 3")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -161,9 +161,9 @@ func CreateCarDetailAPI(c *gin.Context) {
 	//carDetail.Image2 = string(Image2Enc)
 	//carDetail.Image3 = string(Image3Enc)
 
-	fmt.Println(Image1Enc)
-	fmt.Println(Image2Enc)
-	fmt.Println(Image3Enc)
+	fmt.Println(len(Image1Enc))
+	fmt.Println(len(Image2Enc))
+	fmt.Println(len(Image3Enc))
 
 	ctx := context.Background()
 	if err := CreateCarDetail(ctx, &carDetail); err != nil {
@@ -270,7 +270,7 @@ func UpdateCarDetailByIdAPI(c *gin.Context) {
 		return
 	}
 
-	Image1Enc, err := functions.Base64ToBytea(updates.Image1)
+	Image1Enc, err := functions.DecodeBase64ToByteArray(updates.Image1)
 	if err != nil {
 		log.Err(err).Msg("Error converting image 1")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -281,7 +281,7 @@ func UpdateCarDetailByIdAPI(c *gin.Context) {
 		return
 	}
 
-	Image2Enc, err := functions.Base64ToBytea(updates.Image2)
+	Image2Enc, err := functions.DecodeBase64ToByteArray(updates.Image2)
 	if err != nil {
 		log.Err(err).Msg("Error converting image 2")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -292,7 +292,7 @@ func UpdateCarDetailByIdAPI(c *gin.Context) {
 		return
 	}
 
-	Image3Enc, err := functions.Base64ToBytea(updates.Image3)
+	Image3Enc, err := functions.DecodeBase64ToByteArray(updates.Image3)
 	if err != nil {
 		log.Err(err).Msg("Error converting image 3")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -303,9 +303,9 @@ func UpdateCarDetailByIdAPI(c *gin.Context) {
 		return
 	}
 
-	updates.Image1 = string(Image1Enc)
-	updates.Image2 = string(Image2Enc)
-	updates.Image3 = string(Image3Enc)
+	fmt.Println(len(Image1Enc))
+	fmt.Println(len(Image2Enc))
+	fmt.Println(len(Image3Enc))
 
 	// Call the service to update the car detail
 	ctx := context.Background()
