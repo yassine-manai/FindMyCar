@@ -1,19 +1,25 @@
 package config
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// ErrorResponse represents a standardized error response
+type ErrorMessage struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}
+
 type ErrorResponse struct {
 	Status  int    `json:"status"`
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-// CustomErrorHandler is a middleware that catches and formats errors
 func CustomErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next() // Execute the request
@@ -39,18 +45,26 @@ func CustomErrorHandler() gin.HandlerFunc {
 	}
 }
 
-/*
-func main() {
-    r := gin.Default()
+// Define a global variable to hold the error messages
+var errorMessages map[string]map[string]ErrorMessage
 
-    // Add the custom error handler middleware
-    r.Use(CustomErrorHandler())
+func LoadErrorMessages() error {
+	data, err := ioutil.ReadFile("errorCodelang.json")
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(data, &errorMessages)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-    // Example route that might produce an error
-    r.GET("/example", func(c *gin.Context) {
-        // Simulate an error
-        c.Error(gin.Error{Err: fmt.Errorf("something went wrong"), Meta: http.StatusBadRequest})
-    })
-
-    r.Run(":8080")
-} */
+func GetErrorMessage(lang string, key string) ErrorMessage {
+	if messages, ok := errorMessages[lang]; ok {
+		if errMessage, exists := messages[key]; exists {
+			return errMessage
+		}
+	}
+	return errorMessages["en"][key]
+}

@@ -185,7 +185,7 @@ func DeleteClientCredAPI(c *gin.Context) {
 	ctx := context.Background()
 	rowsAffected, err := DeleteClientCred(ctx, idStr)
 	if err != nil {
-		log.Err(err).Msg("Error deleting client credential")
+		log.Err(err).Str("id", idStr).Msg("Error deleting client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to delete client credential",
 			"message": err.Error(),
@@ -204,7 +204,7 @@ func DeleteClientCredAPI(c *gin.Context) {
 		return
 	}
 
-	log.Info().Msg("Client credential deleted successfully")
+	log.Info().Str("id", idStr).Msg("Client credential deleted successfully")
 	c.JSON(http.StatusOK, gin.H{
 		"success": "Client credential deleted successfully",
 		"code":    8,

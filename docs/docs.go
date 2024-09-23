@@ -70,15 +70,21 @@ const docTemplate = `{
         },
         "/fyc/cameras": {
             "get": {
-                "description": "Get a list of all cameras",
+                "description": "Get a list of cameras or a specific camera by ID with optional extra data",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Cameras"
                 ],
-                "summary": "Get all cameras",
+                "summary": "Get cameras or specific camera by ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Camera ID",
+                        "name": "id",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "Include extra information if 'yes'",
@@ -88,12 +94,16 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of cameras",
+                        "description": "List of cameras or a single camera",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/pkg.Camera"
-                            }
+                            "$ref": "#/definitions/pkg.Camera"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid camera ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "404": {
@@ -105,6 +115,67 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing camera by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cameras"
+                ],
+                "summary": "Update a camera by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Camera ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated camera data",
+                        "name": "camera",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Camera"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Camera updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload or ID mismatch",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Camera not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update camera",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -157,96 +228,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/fyc/cameras/{id}": {
-            "get": {
-                "description": "Get a specific camera by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cameras"
-                ],
-                "summary": "Get camera by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Camera ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Camera"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update an existing camera by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cameras"
-                ],
-                "summary": "Update a camera by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Camera ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated camera data",
-                        "name": "camera",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Camera"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Camera updated successfully",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request payload or ID mismatch",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Camera not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to update camera",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
             },
             "delete": {
                 "description": "Delete a camera by ID",
@@ -259,7 +240,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Camera ID",
                         "name": "id",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -297,15 +278,21 @@ const docTemplate = `{
         },
         "/fyc/carDetails": {
             "get": {
-                "description": "Get a list of all car details",
+                "description": "Get a list of all car details or a specific car detail by ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Car Details"
                 ],
-                "summary": "Get all car details",
+                "summary": "Get car details",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CarDetail ID",
+                        "name": "id",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "Include extra information if 'yes'",
@@ -321,67 +308,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/pkg.CarDetail"
                             }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new car detail to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Car Details"
-                ],
-                "summary": "Add a new car detail",
-                "parameters": [
-                    {
-                        "description": "Car detail data",
-                        "name": "CarDetail",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/pkg.CarDetail"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.CarDetail"
-                        }
-                    }
-                }
-            }
-        },
-        "/fyc/carDetails/{id}": {
-            "get": {
-                "description": "Get a specific carDetail by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Car Details"
-                ],
-                "summary": "Get cardetail by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "CarDetail ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.CarDetail"
                         }
                     }
                 }
@@ -403,7 +329,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Car ID",
                         "name": "id",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -439,6 +365,38 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "description": "Add a new car detail to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Car Details"
+                ],
+                "summary": "Add a new car detail",
+                "parameters": [
+                    {
+                        "description": "Car detail data",
+                        "name": "CarDetail",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.CarDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.CarDetail"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete a car detail by ID",
                 "tags": [
@@ -450,7 +408,7 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Car detail ID",
                         "name": "id",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -799,6 +757,131 @@ const docTemplate = `{
                 ],
                 "summary": "Debug API",
                 "responses": {}
+            }
+        },
+        "/fyc/errors": {
+            "get": {
+                "description": "Get a list of all error messages or a specific one by code",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Errors"
+                ],
+                "summary": "Get all error messages or specific one",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Error code to fetch specific error message",
+                        "name": "code",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pkg.ErrorMessage"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new error message",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Errors"
+                ],
+                "summary": "Create a new error message",
+                "parameters": [
+                    {
+                        "description": "Error message object",
+                        "name": "errMsg",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ErrorMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/errors/{code}": {
+            "put": {
+                "description": "Update an existing error message by code",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Errors"
+                ],
+                "summary": "Update an existing error message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Error message code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated error message object",
+                        "name": "errMsg",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ErrorMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ErrorMessage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an error message by code",
+                "tags": [
+                    "Errors"
+                ],
+                "summary": "Delete an error message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Error message code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
             }
         },
         "/fyc/history": {
@@ -1714,6 +1797,12 @@ const docTemplate = `{
                         "description": "Include extra information if 'yes'",
                         "name": "extra",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "choose the image type Small or Large (small or sm for Small Images / lg or large for Large )",
+                        "name": "typeImage",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1995,6 +2084,24 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.ErrorMessage": {
+            "type": "object",
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "message": {
                     "type": "string"
                 }
             }

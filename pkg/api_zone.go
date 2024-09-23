@@ -36,7 +36,7 @@ func GetZonesAPI(c *gin.Context) {
 			})
 			return
 		}
-
+		log.Debug().Interface("Zones", zones).Msg("Get Zone api db dat")
 		if len(zones) == 0 {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error":   "Not Found",
@@ -144,7 +144,7 @@ func CreateZoneAPI(c *gin.Context) {
 	}
 
 	if functions.Contains(Zonelist, *zone.ZoneID) {
-		c.JSON(http.StatusNotFound, gin.H{
+		c.JSON(http.StatusFound, gin.H{
 			"error":   "Zone Exist",
 			"message": fmt.Sprintf("Zone with ID %d is found", *zone.ZoneID),
 			"code":    9,

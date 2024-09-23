@@ -85,8 +85,10 @@ func DeleteClientCred(ctx context.Context, clientID string) (int64, error) {
 
 	result, err := Dbg.NewDelete().Model((*ApiManage)(nil)).Where("client_id = ?", clientID).Exec(ctx)
 	if err != nil {
+		
 		return 0, fmt.Errorf("error deleting client cred with ClientID %s: %w", clientID, err)
 	}
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("error fetching rows affected: %w", err)

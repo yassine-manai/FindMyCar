@@ -25,7 +25,7 @@ import (
 func GetPresentCarsAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
-
+	//lang := c.DefaultQuery("lang", "EN")
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
 		cars, err := GetAllPresentExtra(ctx)
 		if err != nil {
@@ -94,7 +94,7 @@ func GetPresentCarByLPNAPI(c *gin.Context) {
 	if err != nil {
 		log.Err(err).Str("lpn", lpn).Msg("Error retrieving present car by LPN")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "An unexpected error occurred",
+			"error":   "Not Found",
 			"message": "Present car not found",
 			"code":    9,
 		})

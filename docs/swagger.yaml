@@ -103,6 +103,18 @@ definitions:
     - name
     - type
     type: object
+  pkg.ErrorMessage:
+    properties:
+      code:
+        type: string
+      language:
+        type: string
+      message:
+        type: string
+    required:
+    - code
+    - message
+    type: object
   pkg.FindMyCarResponse:
     properties:
       locations:
@@ -313,9 +325,46 @@ paths:
       tags:
       - Car Location
   /fyc/cameras:
-    get:
-      description: Get a list of all cameras
+    delete:
+      description: Delete a camera by ID
       parameters:
+      - description: Camera ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Camera deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Camera not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete camera
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a camera by ID
+      tags:
+      - Cameras
+    get:
+      description: Get a list of cameras or a specific camera by ID with optional
+        extra data
+      parameters:
+      - description: Camera ID
+        in: query
+        name: id
+        type: string
       - description: Include extra information if 'yes'
         in: query
         name: extra
@@ -324,11 +373,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: List of cameras
+          description: List of cameras or a single camera
           schema:
-            items:
-              $ref: '#/definitions/pkg.Camera'
-            type: array
+            $ref: '#/definitions/pkg.Camera'
+        "400":
+          description: 'Bad request: Invalid camera ID'
+          schema:
+            additionalProperties: true
+            type: object
         "404":
           description: No cameras found
           schema:
@@ -339,7 +391,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Get all cameras
+      summary: Get cameras or specific camera by ID
       tags:
       - Cameras
     post:
@@ -373,64 +425,13 @@ paths:
       summary: Add a new camera
       tags:
       - Cameras
-  /fyc/cameras/{id}:
-    delete:
-      description: Delete a camera by ID
-      parameters:
-      - description: Camera ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: Camera deleted successfully
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid ID format
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Camera not found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Failed to delete camera
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Delete a camera by ID
-      tags:
-      - Cameras
-    get:
-      description: Get a specific camera by ID
-      parameters:
-      - description: Camera ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pkg.Camera'
-      summary: Get camera by ID
-      tags:
-      - Cameras
     put:
       consumes:
       - application/json
       description: Update an existing camera by ID
       parameters:
       - description: Camera ID
-        in: path
+        in: query
         name: id
         required: true
         type: integer
@@ -467,52 +468,11 @@ paths:
       tags:
       - Cameras
   /fyc/carDetails:
-    get:
-      description: Get a list of all car details
-      parameters:
-      - description: Include extra information if 'yes'
-        in: query
-        name: extra
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/pkg.CarDetail'
-            type: array
-      summary: Get all car details
-      tags:
-      - Car Details
-    post:
-      consumes:
-      - application/json
-      description: Add a new car detail to the database
-      parameters:
-      - description: Car detail data
-        in: body
-        name: CarDetail
-        required: true
-        schema:
-          $ref: '#/definitions/pkg.CarDetail'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/pkg.CarDetail'
-      summary: Add a new car detail
-      tags:
-      - Car Details
-  /fyc/carDetails/{id}:
     delete:
       description: Delete a car detail by ID
       parameters:
       - description: Car detail ID
-        in: path
+        in: query
         name: id
         required: true
         type: integer
@@ -536,21 +496,47 @@ paths:
       tags:
       - Car Details
     get:
-      description: Get a specific carDetail by ID
+      description: Get a list of all car details or a specific car detail by ID
       parameters:
       - description: CarDetail ID
-        in: path
+        in: query
         name: id
-        required: true
         type: integer
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
+            items:
+              $ref: '#/definitions/pkg.CarDetail'
+            type: array
+      summary: Get car details
+      tags:
+      - Car Details
+    post:
+      consumes:
+      - application/json
+      description: Add a new car detail to the database
+      parameters:
+      - description: Car detail data
+        in: body
+        name: CarDetail
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.CarDetail'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
             $ref: '#/definitions/pkg.CarDetail'
-      summary: Get cardetail by ID
+      summary: Add a new car detail
       tags:
       - Car Details
     put:
@@ -559,7 +545,7 @@ paths:
       description: Update an existing car detail by ID
       parameters:
       - description: Car ID
-        in: path
+        in: query
         name: id
         required: true
         type: integer
@@ -801,6 +787,88 @@ paths:
       summary: Debug API
       tags:
       - Debug
+  /fyc/errors:
+    get:
+      description: Get a list of all error messages or a specific one by code
+      parameters:
+      - description: Error code to fetch specific error message
+        in: query
+        name: code
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.ErrorMessage'
+            type: array
+      summary: Get all error messages or specific one
+      tags:
+      - Errors
+    post:
+      consumes:
+      - application/json
+      description: Create a new error message
+      parameters:
+      - description: Error message object
+        in: body
+        name: errMsg
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.ErrorMessage'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.ErrorMessage'
+      summary: Create a new error message
+      tags:
+      - Errors
+  /fyc/errors/{code}:
+    delete:
+      description: Delete an error message by code
+      parameters:
+      - description: Error message code
+        in: path
+        name: code
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Delete an error message
+      tags:
+      - Errors
+    put:
+      consumes:
+      - application/json
+      description: Update an existing error message by code
+      parameters:
+      - description: Error message code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: Updated error message object
+        in: body
+        name: errMsg
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.ErrorMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.ErrorMessage'
+      summary: Update an existing error message
+      tags:
+      - Errors
   /fyc/history:
     get:
       description: Get a list of all history records
@@ -1409,6 +1477,11 @@ paths:
       - description: Include extra information if 'yes'
         in: query
         name: extra
+        type: string
+      - description: choose the image type Small or Large (small or sm for Small Images
+          / lg or large for Large )
+        in: query
+        name: typeImage
         type: string
       produces:
       - application/json

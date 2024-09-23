@@ -1,9 +1,0 @@
-Step 1: 
-export PATH=$(go env GOPATH)/bin:$PATH
-
-
-Step 2:
-swag init 
-
-if error exe this :
-swag init --parseDependency

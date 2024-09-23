@@ -101,7 +101,7 @@ func checkToken(c *gin.Context) bool {
 // @Param   grant_type    formData   string  true  "Grant Type"
 // @Success 200 {object} TokenResponseTest
 // @Router /token [post]
-func getToken(c *gin.Context) {
+func GetToken(c *gin.Context) {
 	var TokenRequester TokenRequester
 
 	// Hardcoded values for client_id, client_secret, and grant_type
@@ -144,7 +144,7 @@ func getToken(c *gin.Context) {
 // @Param   Authorization header string true "Bearer Token"
 // @Success 200 {object} FindMyCarResponse
 // @Router /findmycar [get]
-func findMyCar(c *gin.Context) {
+func FindMyCar(c *gin.Context) {
 
 	if !checkToken(c) {
 		return
@@ -152,89 +152,57 @@ func findMyCar(c *gin.Context) {
 
 	licensePlate := c.Query("license_plate")
 	language := c.Query("language")
-	//fuzzyLogic := c.Query("fuzzy_logic")
+	fuzzyLogic := c.DefaultQuery("fuzzy_logic", "false")
 
 	ctx := context.Background()
 
 	car, err := GetPresentCarByLPN(ctx, licensePlate)
 	if err != nil {
-		log.Err(err).Str("lpn", licensePlate).Msg("Error retrieving present car by LPN")
+		log.Err(err).Str("license_plate", licensePlate).Msg("Error retrieving car by LPN")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "An unexpected error occurred",
-			"message": "Present car not found",
-			"code":    9,
+			"error":   "Car Not Found",
+			"message": "No car found with the provided license plate",
+			"code":    404,
 		})
 		return
 	}
 
-	log.Info().Msg("LPN moujoud")
-	log.Debug().Int("zone", *car.CurrZoneID).Msg("LPN moujoud")
+	log.Info().Msg("Car found with license plate")
+	log.Debug().Int("zone", *car.CurrZoneID).Msg("Current Zone ID")
 
-	zoneImg, err := GetZoneImageByZoneID(ctx, *car.CurrZoneID)
+	zoneImages, err := GetZoneImageByZoneID(ctx, *car.CurrZoneID)
 	if err != nil {
-		log.Err(err).Msg("Error retrieving Zone IMAGE")
+		log.Err(err).Msg("Error retrieving zone image")
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "An unexpected error occurred",
-			"message": "zone image not found",
-			"code":    9,
+			"error":   "Zone Image Not Found",
+			"message": "No image found for the current zone",
+			"code":    404,
 		})
 		return
 	}
 
-	for i := range zoneImg {
-		ZoneLang := zoneImg[i].Lang
-		ZoneImage := zoneImg[i].ImageLg
-
-		simpleEN := CarLocation{
-			Facility:    *car.CurrZoneID,
-			SpotID:      "B-456",
-			PictureName: ZoneImage,
-		}
-
-		// without fuzzy logics
-		if licensePlate == car.LPN && language == ZoneLang {
-			c.JSON(http.StatusOK, gin.H{
-				"ResponseCode": 200,
-				"Locations":    simpleEN,
-			})
-		}
-
-	}
-
-	//ZoneLang := zoneImg.Lang
-	//var ZoneImage = string(zoneImg.ID)
-
-	/* simpleEN := CarLocation{
+	Response := CarLocation{
 		Facility:    *car.CurrZoneID,
 		SpotID:      "B-456",
-		PictureName: ZoneImage,
+		PictureName: "",
 	}
 
-	// without fuzzy logics
-	if licensePlate == car.LPN && language == ZoneLang {
-		c.JSON(http.StatusOK, gin.H{
-			"ResponseCode": 200,
-			"Locations":    simpleEN,
-		})
+	for _, zoneImage := range zoneImages {
+		if language == zoneImage.Lang || fuzzyLogic == "false" {
+			Response.PictureName = zoneImage.ImageLg
+			c.JSON(http.StatusOK, gin.H{
+				"ResponseCode": 200,
+				"Locations":    Response,
+			})
+			return
+		}
 	}
 
-	if language != ZoneLang {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Bad Request",
-			"message": "Unsupported language code",
-			"code":    "12",
-		})
-		return
-	} */
-
-	if licensePlate != car.LPN {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Not Found",
-			"message": "Licence Plate NotFound",
-			"code":    "9",
-		})
-		return
-	}
+	c.JSON(http.StatusNotFound, gin.H{
+		"error":   "No Match",
+		"message": "No matching car location found for the given language",
+		"code":    9,
+	})
 }
 
 // @Summary Get a picture by picture name
@@ -246,7 +214,7 @@ func findMyCar(c *gin.Context) {
 // @Param   Authorization header string true "Bearer Token"
 // @Success 200 {object} PictureResponse
 // @Router /getpicture [get]
-func getPicture(c *gin.Context) {
+func GetPicture(c *gin.Context) {
 	pictureName := c.Query("picture_name")
 	lang := c.Query("language")
 
@@ -312,7 +280,7 @@ type Settings struct {
 // @Param   Authorization header string true "Bearer Token"
 // @Success 200 {object} Settings
 // @Router /getSettings [get]
-func getsettings(c *gin.Context) {
+func Getsettings(c *gin.Context) {
 	TestLogo := "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAxOSAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik0xMS4wMjU3IDMyLjYzODdDNi42MTE2MiAzMi42Mzg3IDMuMDMxOTIgMjkuMDU0IDMuMDMxOTIgMjQuNjMzOEwzLjA0NDY2IDE0LjczNDZDMy4wNDQ2NiAxNC43MDkgMy4wNDQ2NiAxNC42ODM1IDMuMDQ0NjYgMTQuNjUxNkMzLjA0NDY2IDEzLjc1ODcgMi4zNjMxMSAxMy4wMjUxIDEuNTIyMzMgMTMuMDI1MUMwLjY4MTU0NCAxMy4wMjUxIDAgMTMuNzU4NyAwIDE0LjY1MTZDMCAxNC42NzcxIDAgMTQuNzA5IDAgMTQuNzM0NlYyNC42MzM4QzAgMjkuMjU4MSAyLjg0MDgzIDMzLjIxMjcgNi44NjY0IDM0Ljg1ODRDMTYuOTExMiAzOC4yMzg5IDE4LjI0ODggMjguMDY1NCAxOC4yNDg4IDI4LjA2NTRDMTYuOTYyMiAzMC43Njk4IDE0LjIxNjkgMzIuNjM4NyAxMS4wMjU3IDMyLjYzODdaIiBmaWxsPSIjMDBBQjU0Ii8+CiAgICA8cGF0aCBkPSJNMTYuMTM0MiAxMy4xNDY0QzE1LjQ3MTggMTMuNDI3MSAxNS4yMDQzIDE0LjA1ODUgMTUuMjA0MyAxNC43MzQ2QzE1LjIwNDMgMTYuMDAzOSAxNS4yMjM0IDI0LjgxMjUgMTUuMTM0MiAyNS4zNTQ2QzE0Ljc4MzkgMjcuNDA4NSAxMi45MDQ5IDI4LjkyMDIgMTAuODM0NyAyOC44MjQ1QzguNzc3MzcgMjguNzI4OCA3LjA0NDg1IDI3LjA3NjggNi44NjAxMyAyNS4wMjNWNC43MjY5M0wzLjgwMjczIDguMjc5NjlWMjMuOTUxNEMzLjgwMjczIDI0LjkwODIgMy44MzQ1OCAyNS44NTIyIDQuMTIxMjEgMjYuNzgzNEM0LjcwNzIxIDI4LjY5MDUgNi4wOTU3OCAzMC4yOTc5IDcuODg1NjMgMzEuMTY1NEM5LjczOTE4IDMyLjA1ODMgMTEuOTQzIDMyLjExNTcgMTMuODM0OCAzMS4zMTIxQzE1LjY2OTIgMzAuNTMzOSAxNy4xMjc5IDI4Ljk5NjcgMTcuODA5NCAyNy4xMjc4QzE4LjE5MTYgMjYuMDc1NCAxOC4yNDI2IDI1LjAwMzggMTguMjQyNiAyMy45MDA0VjE0LjU0OTZDMTguMjQ4OSAxMy40NzgxIDE3LjEyMTUgMTIuNzI1NCAxNi4xMzQyIDEzLjE0NjRaIiBmaWxsPSIjMkY1RkFDIi8+CiAgICA8cGF0aCBkPSJNMTQuNDU5MiA4LjQ1ODI1TDExLjQwMTggNC45MDU0OUwxMS40MDgxIDI0LjUxOUMxMS40MDgxIDI0LjcyOTUgMTEuMjM2MSAyNC44OTU0IDExLjAzMjMgMjQuODk1NEMxMC44MjIxIDI0Ljg5NTQgMTAuNjU2NSAyNC43MjMxIDEwLjY1NjUgMjQuNTE5TDEwLjY2MjkgNC4wMDYxM0w3LjU5OTEyIDAuNDUzMzY5QzcuNTk5MTIgMC40NTMzNjkgNy42MTE4NiAyNC40NzQ0IDcuNjExODYgMjQuNTE5QzcuNjExODYgMjYuNDEzNCA5LjE0NjkzIDI3Ljk0NDIgMTEuMDMyMyAyNy45NDQyQzEyLjcxMzkgMjcuOTQ0MiAxNC4xMTUyIDI2LjcyNiAxNC4zOTU1IDI1LjExODZDMTQuNDI3MyAyNC45OTc0IDE0LjQ0NjQgMjQuODYzNSAxNC40NDY0IDI0LjcyOTVIMTQuNDUyOEMxNC40NDY0IDI0LjM2NTkgMTQuNDU5MiA4LjQ1ODI1IDE0LjQ1OTIgOC40NTgyNVoiIGZpbGw9IiMyRjVGQUMiLz4KPC9zdmc+Cg=="
 
 	if !checkToken(c) {

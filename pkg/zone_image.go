@@ -27,6 +27,22 @@ type ResponseImageZone struct {
 	ImageLg       string `bun:"image_l" json:"image_l"`
 }
 
+type ResponseImageLg struct {
+	bun.BaseModel `json:"-" bun:"table:zone_images"`
+	ID            int    `bun:"id" json:"id"`
+	ZoneID        *int   `bun:"zone_id" json:"zone_id"`
+	Lang          string `bun:"lang" json:"lang"`
+	ImageLg       string `bun:"image_l" json:"image_l"`
+}
+
+type ResponseImageSm struct {
+	bun.BaseModel `json:"-" bun:"table:zone_images"`
+	ID            int    `bun:"id" json:"id"`
+	ZoneID        *int   `bun:"zone_id" json:"zone_id"`
+	Lang          string `bun:"lang" json:"lang"`
+	ImageSm       string `bun:"image_s" json:"image_s"`
+}
+
 // Get all Zones with extra data
 func GetAllZoneImageExtra(ctx context.Context) ([]ImageZone, error) {
 	var zoneImage []ImageZone
@@ -40,11 +56,31 @@ func GetAllZoneImageExtra(ctx context.Context) ([]ImageZone, error) {
 // Get all zone
 func GetAllZoneImage(ctx context.Context) ([]ResponseImageZone, error) {
 	var EZI []ResponseImageZone
-	err := Dbg.NewSelect().Model(&EZI).Column("id", "zone_id", "lang", "image_s", "image_l").Scan(ctx)
+	err := Dbg.NewSelect().Model(&EZI).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
 	}
 	return EZI, nil
+}
+
+// Get all zoneImage LG
+func GetAllZoneImageLg(ctx context.Context) ([]ResponseImageLg, error) {
+	var Zlg []ResponseImageLg
+	err := Dbg.NewSelect().Model(&Zlg).Scan(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
+	}
+	return Zlg, nil
+}
+
+// Get all zoneImage LG
+func GetAllZoneImageSm(ctx context.Context) ([]ResponseImageSm, error) {
+	var Zlg []ResponseImageSm
+	err := Dbg.NewSelect().Model(&Zlg).Scan(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
+	}
+	return Zlg, nil
 }
 
 // Gt zone by id

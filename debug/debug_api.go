@@ -1,6 +1,7 @@
-package pkg
+package debug
 
 import (
+	"fmc/pkg"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,9 +16,9 @@ import (
 func Debuger_api(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
-		"ZoneList":    Zonelist,
-		"CarParkList": CarParkList,
-		"CameraList":  CameraList,
+		"ZoneList":    pkg.Zonelist,
+		"CarParkList": pkg.CarParkList,
+		"CameraList":  pkg.CameraList,
 	})
 
 }

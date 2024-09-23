@@ -6,6 +6,7 @@ import (
 	"fmc/config"
 	_ "fmc/docs"
 	"fmc/pkg"
+	"fmc/routes"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -77,12 +78,13 @@ func main() {
 	fmt.Println(len(pkg.CameraList))
 	fmt.Println("-------------------------------- #  DATA LIST END # ------------------------------")
 
-	r := pkg.SetupRouter()
+	r := routes.SetupRouter()
 
 	var host = fmt.Sprintf("%s:%d", configvar.Server.Host, configvar.Server.Port)
 	if err := r.Run(host); err != nil {
 		log.Err(err).Msgf("Failed to run server: %v", err)
 	}
 
+	
 	log.Debug().Msgf("-------------------------------- # END PROGRAM # ------------------------------")
 }

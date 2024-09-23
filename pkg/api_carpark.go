@@ -191,7 +191,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 
 	if !functions.Contains(CarParkList, carpark.ID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Carpark not found ",
+			"error":   "Not Found",
 			"message": fmt.Sprintf("Carpark with ID %d does not exist", carpark.ID),
 			"code":    9,
 		})

@@ -48,18 +48,17 @@ func GetAllCarDetail(ctx context.Context) ([]ResponseCarDetail, error) {
 }
 
 // Get car detail by ID
-func GetCarDetailByID(ctx context.Context, id int) (*CarDetail, error) {
-	car := new(CarDetail)
-	err := Dbg.NewSelect().Model(car).Where("id = ?", id).Scan(ctx)
+func GetCarDetailByID(ctx context.Context, id int) ([]CarDetail, error) {
+	var cars []CarDetail
+	err := Dbg.NewSelect().Model(&cars).Where("id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting car detail by ID: %w", err)
 	}
-	return car, nil
+	return cars, nil
 }
 
 // Create a new car detail
 func CreateCarDetail(ctx context.Context, newCar *CarDetail) error {
-	// Insert and get the auto-generated ID from the database
 	_, err := Dbg.NewInsert().Model(newCar).Returning("id").Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error creating car detail: %w", err)

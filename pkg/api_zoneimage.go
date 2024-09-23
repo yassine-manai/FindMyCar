@@ -19,11 +19,13 @@ import (
 //	@Tags			Zones Image
 //	@Produce		json
 //	@Param			extra	query		string	false	"Include extra information if 'yes'"
+//	@Param			typeImage	query		string	false	"choose the image type Small or Large (small or sm for Small Images / lg or large for Large )"
 //	@Success		200	{array}		ImageZone
 //	@Router			/fyc/zonesImages [get]
 func GetAllImageZonesAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
+	imageType := c.DefaultQuery("typeImage", "false")
 
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
 		//zoneimage return list of object
@@ -58,6 +60,70 @@ func GetAllImageZonesAPI(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, zonesImage)
+		return
+	}
+
+	if strings.ToLower(imageType) == "small" || strings.ToLower(imageType) == "sm" {
+		//zoneimage return list of object
+		smImage, err := GetAllZoneImageSm(ctx)
+		if err != nil {
+			log.Err(err).Msg("Error getting all zones small image  with extra data ")
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "An unexpected error occurred",
+				"message": "Error getting all zones small image with extra data ",
+				"code":    10,
+			})
+			return
+		}
+
+		if len(smImage) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":   "Not Found",
+				"message": "No zones found",
+				"code":    9,
+			})
+			return
+		}
+
+		for i := range smImage {
+			if smImage[i].ImageSm != "" {
+				smImage[i].ImageSm = functions.ByteaToBase64([]byte(smImage[i].ImageSm))
+			}
+		}
+
+		c.JSON(http.StatusOK, smImage)
+		return
+	}
+
+	if strings.ToLower(imageType) == "large" || strings.ToLower(imageType) == "lg" {
+		//zoneimage return list of object
+		lgImage, err := GetAllZoneImageLg(ctx)
+		if err != nil {
+			log.Err(err).Msg("Error getting all zones small image  with extra data ")
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "An unexpected error occurred",
+				"message": "Error getting all zones small image with extra data ",
+				"code":    10,
+			})
+			return
+		}
+
+		if len(lgImage) == 0 {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":   "Not Found",
+				"message": "No zones found",
+				"code":    9,
+			})
+			return
+		}
+
+		for i := range lgImage {
+			if lgImage[i].ImageLg != "" {
+				lgImage[i].ImageLg = functions.ByteaToBase64([]byte(lgImage[i].ImageLg))
+			}
+		}
+
+		c.JSON(http.StatusOK, lgImage)
 		return
 	}
 

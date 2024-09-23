@@ -58,13 +58,13 @@ func GetAllCamera(ctx context.Context) ([]ResponseCamera, error) {
 }
 
 // Gt camera by id
-func GetCameraByID(ctx context.Context, id int) (*Camera, error) {
-	cm := new(Camera)
-	err := Dbg.NewSelect().Model(cm).Where("id = ?", id).Scan(ctx)
+func GetCameraByID(ctx context.Context, id int) ([]Camera, error) {
+	var cam []Camera
+	err := Dbg.NewSelect().Model(&cam).Where("id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting camera by id : %w", err)
 	}
-	return cm, nil
+	return cam, nil
 }
 
 // create a new camera

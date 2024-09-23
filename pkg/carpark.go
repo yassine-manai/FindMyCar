@@ -19,7 +19,7 @@ type Carpark struct {
 	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
 }
 
-type CarparkReposne struct {
+type CarparkResonse struct {
 	// Structure
 	bun.BaseModel `json:"-" bun:"table:carpark"`
 	ID            int                    `bun:"id" json:"id"`
@@ -57,8 +57,8 @@ func GetCarparkByID(ctx context.Context, id int) (*Carpark, error) {
 	return carpark, nil
 }
 
-func GetAllCarparks(ctx context.Context) ([]CarparkReposne, error) {
-	var cprk []CarparkReposne
+func GetAllCarparks(ctx context.Context) ([]CarparkResonse, error) {
+	var cprk []CarparkResonse
 	err := Dbg.NewSelect().Model(&cprk).Order("id ASC").Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving all carparks: %w", err)
