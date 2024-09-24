@@ -44,7 +44,7 @@ func main() {
 
 	/* // List of table models to be created
 	models := []interface{}{
-		(*pkg.Carpark)(_),
+		(*pkg.Carpark)(nil),
 		(*pkg.PresentCar)(nil),
 		(*pkg.Zone)(nil),
 		(*pkg.ImageZone)(nil),
@@ -56,11 +56,10 @@ func main() {
 	ctx := context.Background()
 	if err := functions.CreateTables(ctx, pkg.Dbg, models); err != nil {
 		fmt.Printf("Failed to create tables: %v", err)
-	}
-	*/
+	} */
 	ctx := context.Background()
 
-	_, PresentCarError := pkg.Dbg.NewCreateTable().Model((*pkg.CarDetail)(nil)).IfNotExists().Exec(ctx)
+	_, PresentCarError := pkg.Dbg.NewCreateTable().Model((*pkg.ErrorMessage)(nil)).IfNotExists().Exec(ctx)
 	if PresentCarError != nil {
 		panic(PresentCarError)
 	}
@@ -85,6 +84,5 @@ func main() {
 		log.Err(err).Msgf("Failed to run server: %v", err)
 	}
 
-	
 	log.Debug().Msgf("-------------------------------- # END PROGRAM # ------------------------------")
 }

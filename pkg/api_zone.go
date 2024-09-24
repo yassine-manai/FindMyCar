@@ -110,22 +110,22 @@ func GetZoneByIDAPI(c *gin.Context) {
 	c.JSON(http.StatusOK, zone)
 }
 
-// CreateZone godoc
-//
-//	@Summary		Add a new zone
-//	@Description	Add a new zone to the database
-//	@Tags			Zones
-//	@Accept			json
-//	@Produce		json
-//	@Param			zone	body		Zone	true	"Zone data"
-//	@Success		201		{object}	Zone
-//	@Router			/fyc/zones [post]
+// CreateZoneAPI adds a new zone to the database
+// @Summary		Add a new zone
+// @Description	Add a new zone to the database
+// @Tags			Zones
+// @Accept			json
+// @Produce		json
+// @Param			zone	body		Zone	true	"Zone data"
+// @Success		201		{object}	Zone
+// @Router			/fyc/zones [post]
 func CreateZoneAPI(c *gin.Context) {
 	var zone Zone
 	ctx := context.Background()
 
 	// Bind the incoming JSON payload to the zone struct
 	if err := c.ShouldBindJSON(&zone); err != nil {
+		log.Err(err).Msg("Invalid request payload for zone creation")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
 			"message": err.Error(),
@@ -134,6 +134,7 @@ func CreateZoneAPI(c *gin.Context) {
 		return
 	}
 
+	// Check if CarParkID is valid
 	if !functions.Contains(CarParkList, *zone.CarParkID) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Carpark not found",
@@ -143,15 +144,17 @@ func CreateZoneAPI(c *gin.Context) {
 		return
 	}
 
+	// Check if ZoneID already exists
 	if functions.Contains(Zonelist, *zone.ZoneID) {
-		c.JSON(http.StatusFound, gin.H{
-			"error":   "Zone Exist",
-			"message": fmt.Sprintf("Zone with ID %d is found", *zone.ZoneID),
+		c.JSON(http.StatusConflict, gin.H{
+			"error":   "Zone already exists",
+			"message": fmt.Sprintf("Zone with ID %d already exists", *zone.ZoneID),
 			"code":    9,
 		})
 		return
 	}
 
+	// Create the zone
 	if err := CreateZone(ctx, &zone); err != nil {
 		log.Err(err).Msg("Error creating new zone")
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -162,41 +165,29 @@ func CreateZoneAPI(c *gin.Context) {
 		return
 	}
 
-	// Prepare the response
-	response := Zone{
-		ID:          zone.ID,
-		ZoneID:      zone.ZoneID,
-		MaxCapacity: zone.MaxCapacity,
-		Present:     zone.Present,
-		Name:        zone.Name,
-		Description: zone.Description,
-		CarParkID:   zone.CarParkID,
-		Extra:       zone.Extra,
-	}
-
 	// Return the response with a 201 status
 	Loadzonelist()
-	c.JSON(http.StatusCreated, response)
+	c.JSON(http.StatusCreated, zone)
 }
 
-// UpdateZoneId godoc
-//
-//	@Summary		Update a zone by ID
-//	@Description	Update an existing zone by ID
-//	@Tags			Zones
-//	@Accept			json
-//	@Produce		json
-//	@Param			id			path		int			true	"Zone ID"
-//	@Param			zone		body		Zone		true	"Updated zone data"
-//	@Success		200		{object}	Zone
-//	@Failure		400		{object}	map[string]interface{}	"Invalid request"
-//	@Failure		404		{object}	map[string]interface{}	"Zone not found"
-//	@Router			/fyc/zones/{id} [put]
+// UpdateZoneIdAPI updates a zone by its ID
+// @Summary		Update a zone by ID
+// @Description	Update an existing zone by ID
+// @Tags			Zones
+// @Accept			json
+// @Produce		json
+// @Param			id			path		int			true	"Zone ID"
+// @Param			zone		body		Zone		true	"Updated zone data"
+// @Success		200		{object}	Zone
+// @Failure		400		{object}	map[string]interface{}	"Invalid request"
+// @Failure		404		{object}	map[string]interface{}	"Zone not found"
+// @Router			/fyc/zones/{id} [put]
 func UpdateZoneIdAPI(c *gin.Context) {
 	// Convert ID param to integer
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		log.Err(err).Msg("Invalid ID format for update")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid ID format",
 			"message": "ID must be a valid integer",
@@ -209,6 +200,7 @@ func UpdateZoneIdAPI(c *gin.Context) {
 	ctx := context.Background()
 
 	if err := c.ShouldBindJSON(&updates); err != nil {
+		log.Err(err).Msg("Invalid request payload for zone update")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
 			"message": err.Error(),
@@ -218,6 +210,7 @@ func UpdateZoneIdAPI(c *gin.Context) {
 	}
 
 	if *updates.ZoneID != id {
+		log.Warn().Int("expected_id", id).Int("provided_id", *updates.ZoneID).Msg("ID mismatch in update request")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "ID mismatch",
 			"message": "The ID in the request body does not match the param ID",
@@ -226,25 +219,27 @@ func UpdateZoneIdAPI(c *gin.Context) {
 		return
 	}
 
+	// Check if CarParkID is valid
 	if !functions.Contains(CarParkList, *updates.CarParkID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Carpark not found ",
+			"error":   "Carpark not found",
 			"message": fmt.Sprintf("Carpark with ID %d does not exist", *updates.CarParkID),
 			"code":    9,
 		})
 		return
 	}
 
+	// Check if ZoneID exists
 	if !functions.Contains(Zonelist, *updates.ZoneID) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Zone not found ",
+			"error":   "Zone not found",
 			"message": fmt.Sprintf("Zone with ID %d does not exist", *updates.ZoneID),
 			"code":    9,
 		})
 		return
 	}
 
-	// Call the service to update the present car
+	// Call the service to update the zone
 	rowsAffected, err := UpdateZone(ctx, id, &updates)
 	if err != nil {
 		log.Err(err).Msg("Error updating zone by ID")
@@ -273,21 +268,20 @@ func UpdateZoneIdAPI(c *gin.Context) {
 	})
 }
 
-// DeleteZone godoc
-//
-//	@Summary		Delete a zone
-//	@Description	Delete a zone by ID
-//	@Tags			Zones
-//	@Param			id	path		int		true	"Zone ID"
-//	@Success		200	{object}	map[string]interface{}	"Zone deleted successfully"
-//	@Failure		400		{object}	map[string]interface{}	"Invalid request"
-//	@Failure		404		{object}	map[string]interface{}	"Zone not found"
-//	@Router			/fyc/zones/{id} [delete]
+// DeleteZoneAPI deletes a zone by its ID
+// @Summary		Delete a zone
+// @Description	Delete a zone by ID
+// @Tags			Zones
+// @Param			id	path		int		true	"Zone ID"
+// @Success		200	{object}	map[string]interface{}	"Zone deleted successfully"
+// @Failure		400		{object}	map[string]interface{}	"Invalid request"
+// @Failure		404		{object}	map[string]interface{}	"Zone not found"
+// @Router			/fyc/zones/{id} [delete]
 func DeleteZoneAPI(c *gin.Context) {
-
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		log.Err(err).Msg("Invalid ID format for deletion")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid ID format",
 			"message": "ID must be a valid integer",
@@ -311,7 +305,7 @@ func DeleteZoneAPI(c *gin.Context) {
 	if rowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
-			"message": "No zone found with the specified ID ------  affected rows 0 ",
+			"message": "No zone found with the specified ID",
 			"code":    9,
 		})
 		return

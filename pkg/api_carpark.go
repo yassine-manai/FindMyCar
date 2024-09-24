@@ -25,51 +25,57 @@ func GetAllCarparksAPI(c *gin.Context) {
 	ctx := context.Background()
 	extra_req := c.DefaultQuery("extra", "false")
 
+	log.Info().Str("extra_req", extra_req).Msg("Fetching all carparks")
+
 	if strings.ToLower(extra_req) == "true" || strings.ToLower(extra_req) == "1" || strings.ToLower(extra_req) == "yes" {
 		carparkEx, err := GetAllCarparksExtra(ctx)
 		if err != nil {
-			log.Err(err).Msg("Error getting all carpark with extra data")
+			log.Error().Err(err).Msg("Error fetching all carparks with extra data")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error":   "An unexpected error occurred",
-				"message": "Error getting all carpark with extra data",
+				"message": "Error fetching all carparks with extra data",
 				"code":    10,
 			})
 			return
 		}
 
 		if len(carparkEx) == 0 {
+			log.Warn().Msg("No carparks found with extra data")
 			c.JSON(http.StatusNotFound, gin.H{
 				"error":   "Not Found",
-				"message": "No carpark found",
+				"message": "No carparks found",
 				"code":    9,
 			})
 			return
 		}
 
+		log.Info().Int("count", len(carparkEx)).Msg("Carparks with extra data retrieved successfully")
 		c.JSON(http.StatusOK, carparkEx)
 		return
 	}
 
 	carpark, err := GetAllCarparks(ctx)
 	if err != nil {
-		log.Err(err).Msg("Error getting all cameras")
+		log.Error().Err(err).Msg("Error fetching all carparks")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "An unexpected error occurred",
-			"message": "Error getting all carpark",
+			"message": "Error fetching all carparks",
 			"code":    10,
 		})
 		return
 	}
 
 	if len(carpark) == 0 {
+		log.Warn().Msg("No carparks found")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
-			"message": "No carpark found",
+			"message": "No carparks found",
 			"code":    9,
 		})
 		return
 	}
 
+	log.Info().Int("count", len(carpark)).Msg("Carparks retrieved successfully")
 	c.JSON(http.StatusOK, carpark)
 }
 
@@ -86,7 +92,7 @@ func GetCarparkByIDAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		log.Err(err).Str("id", idStr).Msg("Invalid carpark ID format")
+		log.Error().Str("id", idStr).Msg("Invalid carpark ID format")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid ID format",
 			"message": "Carpark ID must be a valid integer",
@@ -98,7 +104,7 @@ func GetCarparkByIDAPI(c *gin.Context) {
 	ctx := context.Background()
 	carpark, err := GetCarparkByID(ctx, id)
 	if err != nil {
-		log.Err(err).Str("id", idStr).Msg("Error retrieving carpark by ID")
+		log.Error().Str("id", idStr).Err(err).Msg("Error retrieving carpark by ID")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
 			"message": "Carpark not found",
@@ -107,6 +113,7 @@ func GetCarparkByIDAPI(c *gin.Context) {
 		return
 	}
 
+	log.Info().Int("id", id).Msg("Carpark retrieved successfully")
 	c.JSON(http.StatusOK, carpark)
 }
 
@@ -123,6 +130,7 @@ func GetCarparkByIDAPI(c *gin.Context) {
 func AddCarparkAPI(c *gin.Context) {
 	var carpark Carpark
 	if err := c.ShouldBindJSON(&carpark); err != nil {
+		log.Error().Err(err).Msg("Invalid request payload for carpark creation")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
 			"message": err.Error(),
@@ -133,7 +141,7 @@ func AddCarparkAPI(c *gin.Context) {
 
 	ctx := context.Background()
 	if err := AddCarpark(ctx, &carpark); err != nil {
-		log.Err(err).Msg("Error creating carpark")
+		log.Error().Err(err).Msg("Error creating new carpark")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create carpark",
 			"message": err.Error(),
@@ -142,6 +150,7 @@ func AddCarparkAPI(c *gin.Context) {
 		return
 	}
 
+	log.Info().Int("id", carpark.ID).Msg("Carpark created successfully")
 	LoadCarparklist()
 	c.JSON(http.StatusCreated, carpark)
 }
@@ -158,10 +167,10 @@ func AddCarparkAPI(c *gin.Context) {
 //	@Success		200	{object}	Carpark
 //	@Router			/fyc/carparks/{id} [put]
 func UpdateCarparkAPI(c *gin.Context) {
-
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		log.Error().Str("id", idStr).Msg("Invalid carpark ID format")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid ID format",
 			"message": "ID must be a valid integer",
@@ -172,6 +181,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 
 	var carpark Carpark
 	if err := c.ShouldBindJSON(&carpark); err != nil {
+		log.Error().Err(err).Msg("Invalid request payload for carpark update")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
 			"message": "Invalid carpark data",
@@ -181,6 +191,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 	}
 
 	if carpark.ID != id {
+		log.Error().Int("body_id", carpark.ID).Int("path_id", id).Msg("Carpark ID mismatch")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "ID mismatch",
 			"message": "The ID in the request body does not match the ID in the query parameter",
@@ -190,6 +201,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 	}
 
 	if !functions.Contains(CarParkList, carpark.ID) {
+		log.Warn().Int("id", carpark.ID).Msg("Carpark ID not found in the list")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
 			"message": fmt.Sprintf("Carpark with ID %d does not exist", carpark.ID),
@@ -201,7 +213,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 	ctx := context.Background()
 	_, err = UpdateCarpark(ctx, id, &carpark)
 	if err != nil {
-		log.Err(err).Msg("Error updating carpark")
+		log.Error().Err(err).Msg("Error updating carpark")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to update carpark",
 			"message": err.Error(),
@@ -210,6 +222,7 @@ func UpdateCarparkAPI(c *gin.Context) {
 		return
 	}
 
+	log.Info().Int("id", carpark.ID).Msg("Carpark updated successfully")
 	LoadCarparklist()
 	c.JSON(http.StatusOK, carpark)
 }
@@ -226,6 +239,7 @@ func DeleteCarparkAPI(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
+		log.Error().Str("id", idStr).Msg("Invalid carpark ID format")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid ID format",
 			"message": "ID must be a valid integer",
@@ -237,7 +251,7 @@ func DeleteCarparkAPI(c *gin.Context) {
 	ctx := context.Background()
 	rowsAffected, err := DeleteCarpark(ctx, id)
 	if err != nil {
-		log.Err(err).Msg("Error deleting carpark")
+		log.Error().Err(err).Msg("Error deleting carpark")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to delete carpark",
 			"message": err.Error(),
@@ -247,14 +261,16 @@ func DeleteCarparkAPI(c *gin.Context) {
 	}
 
 	if rowsAffected == 0 {
+		log.Warn().Int("id", id).Msg("No carpark found to delete")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
-			"message": "No carpark found with the specified ID with affected rows 0",
+			"message": "No carpark found with the specified ID",
 			"code":    9,
 		})
 		return
 	}
 
+	log.Info().Int("id", id).Msg("Carpark deleted successfully")
 	LoadCarparklist()
 	c.JSON(http.StatusOK, gin.H{
 		"success": "Carpark deleted successfully",

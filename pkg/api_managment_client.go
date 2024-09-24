@@ -20,9 +20,11 @@ import (
 func GetAllClientCredsApi(c *gin.Context) {
 	ctx := context.Background()
 
+	log.Info().Msg("Fetching all client credentials")
+
 	clCred, err := GetAllClientCred(ctx)
 	if err != nil {
-		log.Err(err).Msg("Error getting all client credentials")
+		log.Error().Err(err).Msg("Error getting all client credentials")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "An unexpected error occurred",
 			"message": "Error getting all client credentials",
@@ -53,14 +55,16 @@ func GetAllClientCredsApi(c *gin.Context) {
 //	@Produce		json
 //	@Param			client_id	path		string	true	"Client ID"
 //	@Success		200	{object}	ApiManage
-//	@Router			/fyc/clientCreds/{id} [get]
+//	@Router			/fyc/clientCreds/{client_id} [get]
 func GetClientCredByIDAPI(c *gin.Context) {
 	idStr := c.Param("client_id")
+
+	log.Info().Str("client_id", idStr).Msg("Fetching client credential by ID")
 
 	ctx := context.Background()
 	clientCred, err := GetClientCredById(ctx, idStr)
 	if err != nil {
-		log.Err(err).Str("id", idStr).Msg("Error retrieving client credential by ID")
+		log.Error().Err(err).Str("client_id", idStr).Msg("Error retrieving client credential by ID")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
 			"message": "Client credential not found",
@@ -69,7 +73,7 @@ func GetClientCredByIDAPI(c *gin.Context) {
 		return
 	}
 
-	log.Info().Msg("Returning client credential by ID")
+	log.Info().Str("client_id", idStr).Msg("Returning client credential by ID")
 	c.JSON(http.StatusOK, clientCred)
 }
 
@@ -85,8 +89,11 @@ func GetClientCredByIDAPI(c *gin.Context) {
 //	@Router			/fyc/clientCreds [post]
 func AddClientCredAPI(c *gin.Context) {
 	var clientCred ApiManage
+
+	log.Info().Msg("Attempting to add new client credential")
+
 	if err := c.ShouldBindJSON(&clientCred); err != nil {
-		log.Err(err).Msg("Invalid request payload for client credential creation")
+		log.Error().Err(err).Msg("Invalid request payload for client credential creation")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
 			"message": err.Error(),
@@ -97,7 +104,7 @@ func AddClientCredAPI(c *gin.Context) {
 
 	ctx := context.Background()
 	if err := AddClientCred(ctx, &clientCred); err != nil {
-		log.Err(err).Msg("Error creating client credential")
+		log.Error().Err(err).Msg("Error creating client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to create client credential",
 			"message": err.Error(),
@@ -106,7 +113,7 @@ func AddClientCredAPI(c *gin.Context) {
 		return
 	}
 
-	log.Info().Msg("Client credential created successfully")
+	log.Info().Str("client_id", clientCred.ClientID).Msg("Client credential created successfully")
 	c.JSON(http.StatusCreated, clientCred)
 }
 
@@ -124,9 +131,11 @@ func AddClientCredAPI(c *gin.Context) {
 func UpdateClientCredAPI(c *gin.Context) {
 	idStr := c.Param("id")
 
+	log.Info().Str("client_id", idStr).Msg("Attempting to update client credential")
+
 	var clientCred ApiManage
 	if err := c.ShouldBindJSON(&clientCred); err != nil {
-		log.Err(err).Msg("Invalid request payload for client credential update")
+		log.Error().Err(err).Msg("Invalid request payload for client credential update")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request payload",
 			"message": "Invalid client credential data",
@@ -148,7 +157,7 @@ func UpdateClientCredAPI(c *gin.Context) {
 	ctx := context.Background()
 	rowsAffected, err := UpdateClientCred(ctx, idStr, &clientCred)
 	if err != nil {
-		log.Err(err).Msg("Error updating client credential")
+		log.Error().Err(err).Str("client_id", idStr).Msg("Error updating client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to update client credential",
 			"message": err.Error(),
@@ -158,7 +167,7 @@ func UpdateClientCredAPI(c *gin.Context) {
 	}
 
 	if rowsAffected == 0 {
-		log.Warn().Str("id", idStr).Msg("No client credential found to update")
+		log.Warn().Str("client_id", idStr).Msg("No client credential found to update")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
 			"message": "No client credential found with the specified ID",
@@ -167,7 +176,7 @@ func UpdateClientCredAPI(c *gin.Context) {
 		return
 	}
 
-	log.Info().Msg("Client credential updated successfully")
+	log.Info().Str("client_id", idStr).Msg("Client credential updated successfully")
 	c.JSON(http.StatusOK, clientCred)
 }
 
@@ -182,10 +191,12 @@ func UpdateClientCredAPI(c *gin.Context) {
 func DeleteClientCredAPI(c *gin.Context) {
 	idStr := c.Param("id")
 
+	log.Info().Str("client_id", idStr).Msg("Attempting to delete client credential")
+
 	ctx := context.Background()
 	rowsAffected, err := DeleteClientCred(ctx, idStr)
 	if err != nil {
-		log.Err(err).Str("id", idStr).Msg("Error deleting client credential")
+		log.Error().Err(err).Str("client_id", idStr).Msg("Error deleting client credential")
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to delete client credential",
 			"message": err.Error(),
@@ -195,7 +206,7 @@ func DeleteClientCredAPI(c *gin.Context) {
 	}
 
 	if rowsAffected == 0 {
-		log.Warn().Str("id", idStr).Msg("No client credential found to delete")
+		log.Warn().Str("client_id", idStr).Msg("No client credential found to delete")
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   "Not Found",
 			"message": "No client credential found with the specified ID",
@@ -204,7 +215,7 @@ func DeleteClientCredAPI(c *gin.Context) {
 		return
 	}
 
-	log.Info().Str("id", idStr).Msg("Client credential deleted successfully")
+	log.Info().Str("client_id", idStr).Msg("Client credential deleted successfully")
 	c.JSON(http.StatusOK, gin.H{
 		"success": "Client credential deleted successfully",
 		"code":    8,

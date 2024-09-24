@@ -106,14 +106,11 @@ definitions:
   pkg.ErrorMessage:
     properties:
       code:
-        type: string
-      language:
-        type: string
-      message:
-        type: string
-    required:
-    - code
-    - message
+        type: integer
+      messages:
+        additionalProperties:
+          type: string
+        type: object
     type: object
   pkg.FindMyCarResponse:
     properties:
@@ -718,23 +715,7 @@ paths:
       summary: Add a new client credential
       tags:
       - Client Credentials
-  /fyc/clientCreds/{id}:
-    delete:
-      description: Delete a client credential by ID
-      parameters:
-      - description: Client ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Client credential deleted successfully
-          schema:
-            type: string
-      summary: Delete a client credential
-      tags:
-      - Client Credentials
+  /fyc/clientCreds/{client_id}:
     get:
       description: Get a specific client credential by ID
       parameters:
@@ -751,6 +732,23 @@ paths:
           schema:
             $ref: '#/definitions/pkg.ApiManage'
       summary: Get client credential by ID
+      tags:
+      - Client Credentials
+  /fyc/clientCreds/{id}:
+    delete:
+      description: Delete a client credential by ID
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Client credential deleted successfully
+          schema:
+            type: string
+      summary: Delete a client credential
       tags:
       - Client Credentials
     put:
@@ -788,12 +786,37 @@ paths:
       tags:
       - Debug
   /fyc/errors:
+    delete:
+      description: Delete a specific language entry from the messages field of an
+        error message by code
+      parameters:
+      - description: Error message code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: Language of the error message
+        in: query
+        name: lang
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Delete a specific language from an error message
+      tags:
+      - Errors
     get:
-      description: Get a list of all error messages or a specific one by code
+      description: Get a list of all error messages or a specific one by code and
+        language
       parameters:
       - description: Error code to fetch specific error message
         in: query
         name: code
+        type: string
+      - description: Language of the error message
+        in: query
+        name: lang
         type: string
       produces:
       - application/json
@@ -804,7 +827,7 @@ paths:
             items:
               $ref: '#/definitions/pkg.ErrorMessage'
             type: array
-      summary: Get all error messages or specific one
+      summary: Get all error messages or a specific one
       tags:
       - Errors
     post:
@@ -829,20 +852,6 @@ paths:
       tags:
       - Errors
   /fyc/errors/{code}:
-    delete:
-      description: Delete an error message by code
-      parameters:
-      - description: Error message code
-        in: path
-        name: code
-        required: true
-        type: string
-      responses:
-        "204":
-          description: No Content
-      summary: Delete an error message
-      tags:
-      - Errors
     put:
       consumes:
       - application/json

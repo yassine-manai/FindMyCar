@@ -646,7 +646,7 @@
                 }
             }
         },
-        "/fyc/clientCreds/{id}": {
+        "/fyc/clientCreds/{client_id}": {
             "get": {
                 "description": "Get a specific client credential by ID",
                 "produces": [
@@ -673,7 +673,9 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/fyc/clientCreds/{id}": {
             "put": {
                 "description": "Update an existing client credential by ID",
                 "consumes": [
@@ -752,19 +754,25 @@
         },
         "/fyc/errors": {
             "get": {
-                "description": "Get a list of all error messages or a specific one by code",
+                "description": "Get a list of all error messages or a specific one by code and language",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Errors"
                 ],
-                "summary": "Get all error messages or specific one",
+                "summary": "Get all error messages or a specific one",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Error code to fetch specific error message",
                         "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Language of the error message",
+                        "name": "lang",
                         "in": "query"
                     }
                 ],
@@ -811,6 +819,34 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a specific language entry from the messages field of an error message by code",
+                "tags": [
+                    "Errors"
+                ],
+                "summary": "Delete a specific language from an error message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Error message code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Language of the error message",
+                        "name": "lang",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
             }
         },
         "/fyc/errors/{code}": {
@@ -850,27 +886,6 @@
                         "schema": {
                             "$ref": "#/definitions/pkg.ErrorMessage"
                         }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete an error message by code",
-                "tags": [
-                    "Errors"
-                ],
-                "summary": "Delete an error message",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Error message code",
-                        "name": "code",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
                     }
                 }
             }
@@ -2081,19 +2096,15 @@
         },
         "pkg.ErrorMessage": {
             "type": "object",
-            "required": [
-                "code",
-                "message"
-            ],
             "properties": {
                 "code": {
-                    "type": "string"
+                    "type": "integer"
                 },
-                "language": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
+                "messages": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 }
             }
         },

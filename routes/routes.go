@@ -25,6 +25,7 @@ func SetupRouter() *gin.Engine {
 	HistoryRoutes(r)
 	AuthRoutes(r)
 	DebugRoutes(r)
+	ErrorRoutes(r)
 
 	fmt.Println("--------------------------  END ROUTING  ----------------------")
 
