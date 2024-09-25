@@ -25,6 +25,7 @@ type CarLocation struct {
 	Facility    int    `json:"facility"`
 	SpotID      string `json:"spot_id"`
 	PictureName string `json:"picture_name"`
+	Licence     string `json:"licence"`
 }
 
 type FindMyCarResponse struct {

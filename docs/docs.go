@@ -851,11 +851,7 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
+                "responses": {}
             }
         },
         "/fyc/errors/{code}": {
@@ -2036,12 +2032,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "cam_body": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -2062,6 +2056,9 @@ const docTemplate = `{
             "properties": {
                 "facility": {
                     "type": "integer"
+                },
+                "licence": {
+                    "type": "string"
                 },
                 "picture_name": {
                     "type": "string"
@@ -2085,15 +2082,13 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "language": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "name": {
                     "type": "string"
@@ -2110,10 +2105,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "messages": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
+                    "type": "object"
                 }
             }
         },

@@ -51,10 +51,8 @@ definitions:
   pkg.CarDetail:
     properties:
       cam_body:
-        additionalProperties: true
         type: object
       extra:
-        additionalProperties: true
         type: object
       id:
         type: integer
@@ -75,6 +73,8 @@ definitions:
     properties:
       facility:
         type: integer
+      licence:
+        type: string
       picture_name:
         type: string
       spot_id:
@@ -85,12 +85,10 @@ definitions:
       capacity:
         type: integer
       extra:
-        additionalProperties: true
         type: object
       id:
         type: integer
       language:
-        additionalProperties: true
         type: object
       name:
         type: string
@@ -108,8 +106,6 @@ definitions:
       code:
         type: integer
       messages:
-        additionalProperties:
-          type: string
         type: object
     type: object
   pkg.FindMyCarResponse:
@@ -800,9 +796,7 @@ paths:
         name: lang
         required: true
         type: string
-      responses:
-        "204":
-          description: No Content
+      responses: {}
       summary: Delete a specific language from an error message
       tags:
       - Errors

@@ -169,7 +169,6 @@ func UpdateErrorMessageAPI(c *gin.Context) {
 //	@Tags			Errors
 //	@Param			code	query		string	true	"Error message code"
 //	@Param			lang	query		string	true	"Language of the error message"
-//	@Success		204	{object}	nil
 //	@Router			/fyc/errors [delete]
 func DeleteErrorMessageAPI(c *gin.Context) {
 	codeStr := c.Query("code")

@@ -10,7 +10,7 @@ import (
 type ErrorMessage struct {
 	bun.BaseModel `json:"-" bun:"table:errors"`
 	Code          int               `bun:"code" json:"code"`
-	Messages      map[string]string `bun:"messages, type:json" json:"messages"`
+	Messages      map[string]string `bun:"messages, type:jsonb" json:"messages" swaggertype:"object"`
 }
 
 // CreateErrorMessage inserts a new error message into the database
@@ -29,14 +29,30 @@ func GetErrorMessageByFilter(ctx context.Context, code int, language string) (Er
 	var errMsg ErrorMessage
 	err := Dbg.NewSelect().
 		Model(&errMsg).
-		Where("code", code).
-		Where("messages ->> ?", language).
+		Where("code = ?", code).
+		Where("messages ->> ? IS NOT NULL", language).
 		Scan(ctx)
 
 	if err != nil {
 		log.Error().Err(err).Int("code", code).Str("language", language).Msg("Failed to fetch error message from database")
 	} else {
 		log.Info().Int("code", code).Str("language", language).Msg("Successfully fetched error message")
+	}
+	return errMsg, err
+}
+
+// getErrorMessage fetches an error message by code and language from the database
+func GetErrorMessageByCode(ctx context.Context, code int) (ErrorMessage, error) {
+	var errMsg ErrorMessage
+	err := Dbg.NewSelect().
+		Model(&errMsg).
+		Where("code = ?", code).
+		Scan(ctx)
+
+	if err != nil {
+		log.Error().Err(err).Int("code", code).Msg("Failed to fetch error message from database")
+	} else {
+		log.Info().Int("code", code).Msg("Successfully fetched error message")
 	}
 	return errMsg, err
 }

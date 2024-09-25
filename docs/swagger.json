@@ -842,11 +842,7 @@
                         "required": true
                     }
                 ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
+                "responses": {}
             }
         },
         "/fyc/errors/{code}": {
@@ -2027,12 +2023,10 @@
             ],
             "properties": {
                 "cam_body": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -2053,6 +2047,9 @@
             "properties": {
                 "facility": {
                     "type": "integer"
+                },
+                "licence": {
+                    "type": "string"
                 },
                 "picture_name": {
                     "type": "string"
@@ -2076,15 +2073,13 @@
                     "type": "integer"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "language": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "name": {
                     "type": "string"
@@ -2101,10 +2096,7 @@
                     "type": "integer"
                 },
                 "messages": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
+                    "type": "object"
                 }
             }
         },
