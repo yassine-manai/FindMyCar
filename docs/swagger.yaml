@@ -1,18 +1,34 @@
 definitions:
-  pkg.ApiManage:
+  pkg.ApiKey:
     properties:
+      api_key:
+        type: string
       client_id:
+        type: string
+      client_name:
         type: string
       client_secret:
         type: string
       fuzzy:
-        type: string
+        default: false
+        type: boolean
+      id:
+        type: integer
+      is_deleted:
+        default: false
+        type: boolean
+      is_enabled:
+        default: false
+        type: boolean
     required:
+    - api_key
+    - client_id
     - client_secret
-    - fuzzy
     type: object
   pkg.Camera:
     properties:
+      cam_id:
+        type: integer
       cam_ip:
         type: string
       cam_name:
@@ -20,7 +36,7 @@ definitions:
       cam_password:
         type: string
       cam_port:
-        type: string
+        type: integer
       cam_type:
         type: string
       cam_user:
@@ -28,15 +44,21 @@ definitions:
       direction:
         type: string
       extra:
-        additionalProperties: true
         type: object
       id:
         type: integer
+      is_deleted:
+        default: false
+        type: boolean
+      is_enabled:
+        default: false
+        type: boolean
       zone_id_in:
         type: integer
       zone_id_out:
         type: integer
     required:
+    - cam_id
     - cam_ip
     - cam_name
     - cam_password
@@ -80,27 +102,6 @@ definitions:
       spot_id:
         type: string
     type: object
-  pkg.Carpark:
-    properties:
-      capacity:
-        type: integer
-      extra:
-        type: object
-      id:
-        type: integer
-      language:
-        type: object
-      name:
-        type: string
-      type:
-        type: string
-    required:
-    - capacity
-    - extra
-    - language
-    - name
-    - type
-    type: object
   pkg.ErrorMessage:
     properties:
       code:
@@ -120,7 +121,6 @@ definitions:
   pkg.ImageZone:
     properties:
       extra:
-        additionalProperties: true
         type: object
       id:
         type: integer
@@ -128,7 +128,7 @@ definitions:
         type: string
       image_s:
         type: string
-      lang:
+      language:
         type: string
       zone_id:
         type: integer
@@ -136,7 +136,7 @@ definitions:
     - extra
     - image_l
     - image_s
-    - lang
+    - language
     - zone_id
     type: object
   pkg.PictureResponse:
@@ -146,7 +146,7 @@ definitions:
     type: object
   pkg.PresentCar:
     properties:
-      camera_id:
+      came ra_id:
         type: integer
       car_details_id:
         type: integer
@@ -157,7 +157,6 @@ definitions:
       direction:
         type: string
       extra:
-        additionalProperties: true
         type: object
       id:
         type: integer
@@ -168,7 +167,7 @@ definitions:
       transaction_date:
         type: string
     required:
-    - camera_id
+    - came ra_id
     - car_details_id
     - confidence
     - currZoneID
@@ -181,7 +180,6 @@ definitions:
   pkg.PresentCarHistory:
     properties:
       cam_body:
-        additionalProperties: true
         type: object
       cam_id:
         type: integer
@@ -190,7 +188,6 @@ definitions:
       cur_zone_id:
         type: integer
       extra:
-        additionalProperties: true
         type: object
       id:
         type: integer
@@ -212,14 +209,59 @@ definitions:
     type: object
   pkg.Settings:
     properties:
-      def_lang:
+      app_logo:
         type: string
-      fuzzyLogic:
-        type: boolean
-      logo:
+      carpark_id:
+        type: integer
+      carpark_name:
+        type: string
+      couting_clean_cron:
+        type: string
+      default_lang:
+        default: EN
+        type: string
+      fyc_clean_cron:
         type: string
       timeout_screenKiosk:
         type: integer
+    required:
+    - app_logo
+    - carpark_id
+    - carpark_name
+    - couting_clean_cron
+    - default_lang
+    - fyc_clean_cron
+    - timeout_screenKiosk
+    type: object
+  pkg.Sign:
+    properties:
+      id:
+        type: integer
+      is_deleted:
+        default: false
+        type: boolean
+      is_enabled:
+        default: false
+        type: boolean
+      sign_id:
+        type: integer
+      sign_ip:
+        type: string
+      sign_name:
+        type: string
+      sign_port:
+        type: integer
+      sign_type:
+        type: string
+      zone_id:
+        type: integer
+    required:
+    - sign_id
+    - sign_ip
+    - sign_name
+    - sign_port
+    - sign_type
+    - zone_id
     type: object
   pkg.TokenRequest:
     properties:
@@ -245,33 +287,82 @@ definitions:
       token_type:
         type: string
     type: object
-  pkg.Zone:
+  pkg.User:
     properties:
-      carpark_id:
-        type: integer
-      description:
+      first_name:
         type: string
-      extra:
-        additionalProperties: true
-        type: object
       id:
         type: integer
+      is_deleted:
+        default: false
+        type: boolean
+      is_enabled:
+        default: false
+        type: boolean
+      last_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - first_name
+    - last_name
+    - password
+    - role
+    - username
+    type: object
+  pkg.UserAudit:
+    properties:
+      action_date:
+        type: string
+      id:
+        type: integer
+      module:
+        type: string
+      new_value:
+        type: object
+      old_value:
+        type: object
+      user_id:
+        type: integer
+    required:
+    - action_date
+    - module
+    - new_value
+    - old_value
+    - user_id
+    type: object
+  pkg.Zone:
+    properties:
+      extra:
+        type: object
+      free_capacity:
+        type: integer
+      id:
+        type: integer
+      is_deleted:
+        default: false
+        type: boolean
+      is_enabled:
+        default: false
+        type: boolean
+      last_update:
+        type: string
       max_capacity:
         type: integer
       name:
-        additionalProperties: true
-        type: object
-      present:
-        type: integer
+        type: string
       zone_id:
         type: integer
     required:
-    - carpark_id
-    - description
     - extra
+    - free_capacity
+    - last_update
     - max_capacity
     - name
-    - present
     - zone_id
     type: object
 info:
@@ -317,15 +408,187 @@ paths:
       summary: Find a car by license plate
       tags:
       - Car Location
+  /fyc/UserAudit:
+    delete:
+      description: Soft delete a UserAudit by setting the is_deleted flag to true
+      parameters:
+      - description: UserAudit ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: UserAudit deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid UserAudit ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete UserAudit
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Soft delete a UserAudit
+      tags:
+      - User Audit
+    get:
+      description: Get a list of UserAudit or a specific UserAudit by ID with optional
+        extra data
+      parameters:
+      - description: UserAudit ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of UserAudit or a single UserAudit
+          schema:
+            $ref: '#/definitions/pkg.UserAudit'
+        "400":
+          description: 'Bad request: Invalid UserAudit ID'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No UserAudit found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get UserAudit or specific UserAudit by ID
+      tags:
+      - User Audit
+    post:
+      consumes:
+      - application/json
+      description: Add a new UserAudit to the database
+      parameters:
+      - description: UserAudit data
+        in: body
+        name: UserAudit
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.UserAudit'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: UserAudit created successfully
+          schema:
+            $ref: '#/definitions/pkg.UserAudit'
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to create a new UserAudit
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new UserAudit
+      tags:
+      - User Audit
+    put:
+      consumes:
+      - application/json
+      description: Update an existing UserAudit by ID
+      parameters:
+      - description: UserAudit ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Updated UserAudit data
+        in: body
+        name: UserAudit
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.UserAudit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: UserAudit updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload or ID mismatch
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: UserAudit not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update UserAudit
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a UserAudit by ID
+      tags:
+      - User Audit
+  /fyc/cameraState:
+    put:
+      description: Change the state of a camera (e.g., enabled/disabled) or retrieve
+        a camera by ID
+      parameters:
+      - description: Camera State
+        in: query
+        name: state
+        type: boolean
+      - description: Camera ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Number of rows affected by the state change
+          schema:
+            type: integer
+        "400":
+          description: 'Bad request: Invalid camera ID or state'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No cameras found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Change camera state or retrieve cameras by ID
+      tags:
+      - Cameras
   /fyc/cameras:
     delete:
-      description: Delete a camera by ID
+      description: Soft delete a camera by setting the is_deleted flag to true
       parameters:
       - description: Camera ID
         in: query
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: Camera deleted successfully
@@ -333,12 +596,7 @@ paths:
             additionalProperties: true
             type: object
         "400":
-          description: Invalid ID format
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Camera not found
+          description: Invalid camera ID
           schema:
             additionalProperties: true
             type: object
@@ -347,7 +605,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Delete a camera by ID
+      summary: Soft delete a camera
       tags:
       - Cameras
     get:
@@ -460,6 +718,74 @@ paths:
       summary: Update a camera by ID
       tags:
       - Cameras
+  /fyc/camerasDeleted:
+    get:
+      description: Get a list of deleted cameras or a specific camera by ID with optional
+        extra data
+      parameters:
+      - description: Camera ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of deleted cameras or a single camera
+          schema:
+            $ref: '#/definitions/pkg.Camera'
+        "400":
+          description: 'Bad request: Invalid camera ID'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No cameras found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get deleted cameras or a specific camera by ID
+      tags:
+      - Cameras
+  /fyc/camerasEnabled:
+    get:
+      description: Get a list of enabled cameras or a specific camera by ID with optional
+        extra data
+      parameters:
+      - description: Camera ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of enabled cameras or a single camera
+          schema:
+            $ref: '#/definitions/pkg.Camera'
+        "400":
+          description: 'Bad request: Invalid camera ID'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No cameras found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get enabled cameras or a specific camera by ID
+      tags:
+      - Cameras
   /fyc/carDetails:
     delete:
       description: Delete a car detail by ID
@@ -568,115 +894,29 @@ paths:
       summary: Update a car detail by ID
       tags:
       - Car Details
-  /fyc/carparks:
-    get:
-      description: Get a list of all carparks
-      parameters:
-      - description: Include extra information if 'yes'
-        in: query
-        name: extra
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/pkg.Carpark'
-            type: array
-      summary: Get all carparks
-      tags:
-      - Carparks
-    post:
-      consumes:
-      - application/json
-      description: Add a new carpark to the database
-      parameters:
-      - description: Carpark data
-        in: body
-        name: carpark
-        required: true
-        schema:
-          $ref: '#/definitions/pkg.Carpark'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/pkg.Carpark'
-      summary: Add a new carpark
-      tags:
-      - Carparks
-  /fyc/carparks/{id}:
+  /fyc/clientCreds:
     delete:
-      description: Delete a carpark by ID
+      description: Delete a client credential by ID
       parameters:
-      - description: Carpark ID
-        in: path
+      - description: Client ID
+        in: query
         name: id
         required: true
-        type: integer
+        type: string
       responses:
         "200":
-          description: Carpark deleted successfully
+          description: Client credential deleted successfully
           schema:
             type: string
-      summary: Delete a carpark
+      summary: Delete a client credential
       tags:
-      - Carparks
-    get:
-      description: Get a specific carpark by ID
-      parameters:
-      - description: Carpark ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pkg.Carpark'
-      summary: Get carpark by ID
-      tags:
-      - Carparks
-    put:
-      consumes:
-      - application/json
-      description: Update an existing carpark by ID
-      parameters:
-      - description: Carpark ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Updated carpark data
-        in: body
-        name: carpark
-        required: true
-        schema:
-          $ref: '#/definitions/pkg.Carpark'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pkg.Carpark'
-      summary: Update a carpark
-      tags:
-      - Carparks
-  /fyc/clientCreds:
+      - Client Credentials
     get:
       description: Get a list of all client credentials
       parameters:
-      - description: Include extra information if 'yes'
+      - description: Client ID
         in: query
-        name: extra
+        name: id
         type: string
       produces:
       - application/json
@@ -685,7 +925,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/pkg.ApiManage'
+              $ref: '#/definitions/pkg.ApiKey'
             type: array
       summary: Get all client credentials
       tags:
@@ -700,60 +940,25 @@ paths:
         name: clientCred
         required: true
         schema:
-          $ref: '#/definitions/pkg.ApiManage'
+          $ref: '#/definitions/pkg.ApiKey'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/pkg.ApiManage'
+            $ref: '#/definitions/pkg.ApiKey'
       summary: Add a new client credential
       tags:
       - Client Credentials
-  /fyc/clientCreds/{client_id}:
-    get:
-      description: Get a specific client credential by ID
-      parameters:
-      - description: Client ID
-        in: path
-        name: client_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pkg.ApiManage'
-      summary: Get client credential by ID
-      tags:
-      - Client Credentials
   /fyc/clientCreds/{id}:
-    delete:
-      description: Delete a client credential by ID
-      parameters:
-      - description: Client ID
-        in: path
-        name: id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Client credential deleted successfully
-          schema:
-            type: string
-      summary: Delete a client credential
-      tags:
-      - Client Credentials
     put:
       consumes:
       - application/json
       description: Update an existing client credential by ID
       parameters:
       - description: Client ID
-        in: path
+        in: query
         name: id
         required: true
         type: string
@@ -762,15 +967,76 @@ paths:
         name: clientCred
         required: true
         schema:
-          $ref: '#/definitions/pkg.ApiManage'
+          $ref: '#/definitions/pkg.ApiKey'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/pkg.ApiManage'
+            $ref: '#/definitions/pkg.ApiKey'
       summary: Update a client credential
+      tags:
+      - Client Credentials
+  /fyc/clientEnabled:
+    get:
+      description: Get a list of enabled clients or a specific client by ID with optional
+        extra data
+      parameters:
+      - description: Client ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of enabled clients or a single client
+          schema:
+            $ref: '#/definitions/pkg.ApiKey'
+      summary: Get enabled clients or a specific client by clientID
+      tags:
+      - Client Credentials
+  /fyc/clientState:
+    put:
+      description: Change the state of a Client (e.g., enabled/disabled) or retrieve
+        a client by ID
+      parameters:
+      - description: Client State
+        in: query
+        name: state
+        type: boolean
+      - description: Client ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Number of rows affected by the state change
+          schema:
+            type: integer
+      summary: Change Client state or retrieve Client by ID
+      tags:
+      - Client Credentials
+  /fyc/clientsDeleted:
+    get:
+      description: Get a list of deleted Client or a specific Client by ID with optional
+        extra data
+      parameters:
+      - description: Client ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of deleted Clients or a Client Client
+          schema:
+            $ref: '#/definitions/pkg.ApiKey'
+      summary: Get deleted Clients or a specific Client by ID
       tags:
       - Client Credentials
   /fyc/debug:
@@ -1207,6 +1473,461 @@ paths:
       summary: Get present car by LPN
       tags:
       - PresentCars
+  /fyc/settings:
+    get:
+      description: Get settings by CarPark ID
+      parameters:
+      - description: CarPark ID
+        in: query
+        name: carpark_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Settings'
+      summary: Get settings by CarPark ID
+      tags:
+      - Settings
+    post:
+      consumes:
+      - application/json
+      description: Add new settings for a CarPark
+      parameters:
+      - description: Settings data
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Settings'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.Settings'
+      summary: Add new settings
+      tags:
+      - Settings
+    put:
+      consumes:
+      - application/json
+      description: Update an existing settings by CarPark ID
+      parameters:
+      - description: CarPark ID
+        in: query
+        name: carpark_id
+        required: true
+        type: integer
+      - description: Updated settings data
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Settings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.Settings'
+      summary: Update settings by CarPark ID
+      tags:
+      - Settings
+  /fyc/sign:
+    delete:
+      description: Soft delete a sign by setting the is_deleted flag to true
+      parameters:
+      - description: sign ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: sign deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid sign ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete sign
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Soft delete a sign
+      tags:
+      - Sign
+    get:
+      description: Get a list of sign or a specific sign by ID with optional extra
+        data
+      parameters:
+      - description: sign ID
+        in: query
+        name: id
+        type: integer
+      - description: Include extra information if 'yes'
+        in: query
+        name: extra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of sign or a single sign
+          schema:
+            $ref: '#/definitions/pkg.Sign'
+        "400":
+          description: 'Bad request: Invalid sign ID'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No sign found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get sign or specific sign by ID
+      tags:
+      - Sign
+    post:
+      consumes:
+      - application/json
+      description: Add a new sign to the database
+      parameters:
+      - description: sign data
+        in: body
+        name: sign
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Sign'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: sign created successfully
+          schema:
+            $ref: '#/definitions/pkg.Sign'
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to create a new sign
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a new sign
+      tags:
+      - Sign
+    put:
+      consumes:
+      - application/json
+      description: Update an existing sign by ID
+      parameters:
+      - description: sign ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Updated sign data
+        in: body
+        name: sign
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.Sign'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: sign updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload or ID mismatch
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: sign not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update sign
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a sign by ID
+      tags:
+      - Sign
+  /fyc/signDeleted:
+    get:
+      description: Get a list of deleted sign or a specific sign by ID with optional
+        extra data
+      parameters:
+      - description: sign ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of deleted sign or a single sign
+          schema:
+            $ref: '#/definitions/pkg.Sign'
+        "400":
+          description: 'Bad request: Invalid sign ID'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No sign found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get deleted sign or a specific sign by ID
+      tags:
+      - Sign
+  /fyc/signEnabled:
+    get:
+      description: Get a list of enabled sign or a specific sign by ID with optional
+        extra data
+      parameters:
+      - description: sign ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of enabled sign or a single sign
+          schema:
+            $ref: '#/definitions/pkg.Sign'
+        "400":
+          description: 'Bad request: Invalid sign ID'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No sign found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get enabled sign or a specific sign by ID
+      tags:
+      - Sign
+  /fyc/signState:
+    put:
+      description: Change the state of a sign (e.g., enabled/disabled) or retrieve
+        a sign by ID
+      parameters:
+      - description: sign State
+        in: query
+        name: state
+        type: boolean
+      - description: sign ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Number of rows affected by the state change
+          schema:
+            type: integer
+        "400":
+          description: 'Bad request: Invalid sign ID or state'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No sign found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Change sign state or retrieve sign by ID
+      tags:
+      - Sign
+  /fyc/user:
+    delete:
+      description: Delete a Use by username
+      parameters:
+      - description: Username
+        in: query
+        name: username
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            type: string
+      summary: Delete a cUse
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Add a new User credential to the database
+      parameters:
+      - description: User data
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/pkg.User'
+      summary: Add a new User credential
+      tags:
+      - Users
+  /fyc/user/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing client credential by ID
+      parameters:
+      - description: Client ID
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Updated client credential data
+        in: body
+        name: clientCred
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.User'
+      summary: Update a client credential
+      tags:
+      - Users
+  /fyc/userDeleted:
+    get:
+      description: Get a list of deleted Users or a specific User by username with
+        optional extra data
+      parameters:
+      - description: username
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of deleted Users or a User
+          schema:
+            $ref: '#/definitions/pkg.User'
+      summary: Get deleted User or a specific User by username
+      tags:
+      - Users
+  /fyc/userEnabled:
+    get:
+      description: Get a list of enabled users or a specific user by ID with optional
+        extra data
+      parameters:
+      - description: UserName
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of enabled Users or a single User
+          schema:
+            $ref: '#/definitions/pkg.User'
+      summary: Get enabled User or a specific User by username
+      tags:
+      - Users
+  /fyc/userState:
+    put:
+      description: Change the state of a user (e.g., enabled/disabled) or retrieve
+        a user by username
+      parameters:
+      - description: Client State
+        in: query
+        name: state
+        type: boolean
+      - description: Username
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Number of rows affected by the state change
+          schema:
+            type: integer
+      summary: Change user state or retrieve user by username
+      tags:
+      - Users
+  /fyc/users:
+    get:
+      description: Get a list of all Users
+      parameters:
+      - description: Username
+        in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/pkg.User'
+            type: array
+      summary: Get all Users
+      tags:
+      - Users
   /fyc/v1/Auth/token:
     post:
       consumes:
@@ -1241,19 +1962,46 @@ paths:
       summary: Generate a JWT token
       tags:
       - Test_Version1
+  /fyc/zoneState:
+    put:
+      description: Change the state of a Zone (e.g., enabled/disabled) or retrieve
+        a Zone by ID
+      parameters:
+      - description: Zone State
+        in: query
+        name: state
+        type: boolean
+      - description: Zone ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Number of rows affected by the state change
+          schema:
+            type: integer
+      summary: Change Zone state or retrieve Zones by ID
+      tags:
+      - Zones
   /fyc/zones:
     get:
-      description: Get a list of all zones
+      description: Get a list of all zones, or a zone by ID if 'id' parameter is provided
       parameters:
       - description: Include extra information if 'yes'
         in: query
         name: extra
         type: string
+      - description: Zone ID
+        in: query
+        name: id
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List of zones or a single zone
           schema:
             items:
               $ref: '#/definitions/pkg.Zone'
@@ -1310,24 +2058,6 @@ paths:
       summary: Delete a zone
       tags:
       - Zones
-    get:
-      description: Get a specific zone by ID
-      parameters:
-      - description: Zone ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/pkg.Zone'
-      summary: Get zone by ID
-      tags:
-      - Zones
     put:
       consumes:
       - application/json
@@ -1351,17 +2081,47 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/pkg.Zone'
-        "400":
-          description: Invalid request
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Zone not found
-          schema:
-            additionalProperties: true
-            type: object
       summary: Update a zone by ID
+      tags:
+      - Zones
+  /fyc/zonesDeleted:
+    get:
+      description: Get a list of Deleted zones or a specific zone by ID with optional
+        extra data
+      parameters:
+      - description: Zone ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of Deleted zones or a single zone
+          schema:
+            $ref: '#/definitions/pkg.Zone'
+      summary: Get Deleted zones or a specific zone by ID
+      tags:
+      - Zones
+  /fyc/zonesEnabled:
+    get:
+      description: Get a list of enabled zones or a specific zone by ID with optional
+        extra data
+      parameters:
+      - description: Zone ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of enabled zones or a single zone
+          schema:
+            items:
+              $ref: '#/definitions/pkg.Zone'
+            type: array
+      summary: Get enabled zones or a specific zone by ID
       tags:
       - Zones
   /fyc/zonesImage:
@@ -1583,4 +2343,7 @@ paths:
       summary: Get an access token
       tags:
       - Car Location
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

@@ -8,7 +8,8 @@ import (
 )
 
 var Zonelist []int
-var CarParkList []int
+
+// var CarParkList []int
 var CameraList []int
 var Dbg *bun.DB
 
@@ -22,16 +23,17 @@ func Loadzonelist() {
 	}
 }
 
-func LoadCarparklist() {
-	log.Debug().Msgf("Prepare CarPark List \n")
-	ctx := context.Background()
+/*
+	 func LoadCarparklist() {
+		log.Debug().Msgf("Prepare CarPark List \n")
+		ctx := context.Background()
 
-	CarService, _ := GetAllCarparks(ctx)
-	for _, v := range CarService {
-		CarParkList = append(CarParkList, v.ID)
+		CarService, _ := GetAllCarparks(ctx)
+		for _, v := range CarService {
+			CarParkList = append(CarParkList, v.ID)
+		}
 	}
-}
-
+*/
 func LoadCameralist() {
 	log.Debug().Msgf("Prepare Camera List \n")
 	ctx := context.Background()

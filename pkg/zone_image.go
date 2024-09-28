@@ -10,19 +10,19 @@ import (
 
 type ImageZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
-	ID            int                    `bun:"id,pk,autoincrement" json:"id"`
-	ZoneID        *int                   `bun:"zone_id" json:"zone_id" binding:"required"`
-	Lang          string                 `bun:"lang" json:"lang" binding:"required"`
+	ID            int                    `bun:"id,autoincrement" json:"id"`
+	ZoneID        *int                   `bun:"zone_id,pk" json:"zone_id" binding:"required"`
+	Language      string                 `bun:"language,pk" json:"language" binding:"required"`
 	ImageSm       string                 `bun:"image_s,type:bytea" json:"image_s" binding:"required"`
 	ImageLg       string                 `bun:"image_l,type:bytea" json:"image_l" binding:"required"`
-	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
+	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required" swaggertype:"object"`
 }
 
 type ResponseImageZone struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
 	ID            int    `bun:"id" json:"id"`
 	ZoneID        *int   `bun:"zone_id" json:"zone_id"`
-	Lang          string `bun:"lang" json:"lang"`
+	Language      string `bun:"language" json:"language"`
 	ImageSm       string `bun:"image_s" json:"image_s"`
 	ImageLg       string `bun:"image_l" json:"image_l"`
 }
@@ -31,7 +31,7 @@ type ResponseImageLg struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
 	ID            int    `bun:"id" json:"id"`
 	ZoneID        *int   `bun:"zone_id" json:"zone_id"`
-	Lang          string `bun:"lang" json:"lang"`
+	Language      string `bun:"language" json:"language"`
 	ImageLg       string `bun:"image_l" json:"image_l"`
 }
 
@@ -39,7 +39,7 @@ type ResponseImageSm struct {
 	bun.BaseModel `json:"-" bun:"table:zone_images"`
 	ID            int    `bun:"id" json:"id"`
 	ZoneID        *int   `bun:"zone_id" json:"zone_id"`
-	Lang          string `bun:"lang" json:"lang"`
+	Language      string `bun:"language" json:"language"`
 	ImageSm       string `bun:"image_s" json:"image_s"`
 }
 
@@ -55,25 +55,15 @@ func GetAllZoneImageExtra(ctx context.Context) ([]ImageZone, error) {
 
 // Get all zone
 func GetAllZoneImage(ctx context.Context) ([]ResponseImageZone, error) {
-	var EZI []ResponseImageZone
-	err := Dbg.NewSelect().Model(&EZI).Scan(ctx)
+	var Rzi []ResponseImageZone
+	err := Dbg.NewSelect().Model(&Rzi).Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
 	}
-	return EZI, nil
+	return Rzi, nil
 }
 
-// Get all zoneImage LG
-func GetAllZoneImageLg(ctx context.Context) ([]ResponseImageLg, error) {
-	var Zlg []ResponseImageLg
-	err := Dbg.NewSelect().Model(&Zlg).Scan(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
-	}
-	return Zlg, nil
-}
-
-// Get all zoneImage LG
+// Get all zoneImage Small
 func GetAllZoneImageSm(ctx context.Context) ([]ResponseImageSm, error) {
 	var Zlg []ResponseImageSm
 	err := Dbg.NewSelect().Model(&Zlg).Scan(ctx)
@@ -83,7 +73,17 @@ func GetAllZoneImageSm(ctx context.Context) ([]ResponseImageSm, error) {
 	return Zlg, nil
 }
 
-// Gt zone by id
+// Get all zoneImage LG
+func GetAllZoneImageLg(ctx context.Context) ([]ResponseImageLg, error) {
+	var Rzlg []ResponseImageLg
+	err := Dbg.NewSelect().Model(&Rzlg).Scan(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting all Zones Images : %w", err)
+	}
+	return Rzlg, nil
+}
+
+// Get zone by id
 func GetZoneImageByID(ctx context.Context, id int) (*ImageZone, error) {
 	zoneImg := new(ImageZone)
 	err := Dbg.NewSelect().Model(zoneImg).Where("ID = ?", id).Scan(ctx)

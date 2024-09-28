@@ -14,7 +14,7 @@ type CustomDate struct {
 const customDateFormat = "02/01/2006"
 
 // UnmarshalJSON implements the custom unmarshaling for JSON
-func (cd *CustomDate) UnmarshalJSON(data []byte) error {
+func UnmarshalJSON(cd CustomDate, data []byte) error {
 	dateString := string(data)
 	parsedTime, err := time.Parse(`"`+customDateFormat+`"`, dateString)
 	if err != nil {
@@ -25,7 +25,7 @@ func (cd *CustomDate) UnmarshalJSON(data []byte) error {
 }
 
 // MarshalJSON implements custom marshaling for JSON
-func (cd CustomDate) MarshalJSON() ([]byte, error) {
+func MarshalJSON(cd CustomDate) ([]byte, error) {
 	return []byte(`"` + cd.Time.Format(customDateFormat) + `"`), nil
 }
 
