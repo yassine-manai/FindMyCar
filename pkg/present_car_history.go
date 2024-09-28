@@ -17,8 +17,8 @@ type PresentCarHistory struct {
 	CamID         *int                   `bun:"cam_id" json:"cam_id" binding:"required"`
 	Image         string                 `bun:"image" json:"image" binding:"required"`
 	Confidence    *int                   `bun:"confidence" json:"confidence" binding:"required"`
-	CameraBody    map[string]interface{} `bun:"cam_body,type:jsonb" json:"cam_body" binding:"required"`
-	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
+	CameraBody    map[string]interface{} `bun:"cam_body,type:jsonb" json:"cam_body" binding:"required" swaggertype:"object"`
+	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required" swaggertype:"object"`
 }
 
 type ResponsePCH struct {
@@ -30,7 +30,7 @@ type ResponsePCH struct {
 	CamID         *int                   `bun:"cam_id" json:"cam_id"`
 	Image         string                 `bun:"image" json:"image"`
 	Confidence    *int                   `bun:"confidence" json:"confidence"`
-	CameraBody    map[string]interface{} `bun:"cam_body" json:"cam_body"`
+	CameraBody    map[string]interface{} `bun:"cam_body" json:"cam_body" swaggertype:"object"`
 }
 
 // Get all history with extra data

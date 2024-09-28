@@ -15,8 +15,8 @@ type Carpark struct {
 	Type          string                 `bun:"type" binding:"required" json:"type"`
 	Name          string                 `bun:"name" binding:"required" json:"name"`
 	Capacity      *int                   `bun:"capacity,default:900" json:"capacity" binding:"required"`
-	Language      map[string]interface{} `bun:"language,type:jsonb" json:"language"  binding:"required"`
-	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
+	Language      map[string]interface{} `bun:"language,type:jsonb" json:"language"  binding:"required" swaggertype:"object"`
+	Extra         map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required" swaggertype:"object"`
 }
 
 type CarparkResonse struct {
@@ -26,7 +26,7 @@ type CarparkResonse struct {
 	Type          string                 `bun:"type" json:"type"`
 	Name          string                 `bun:"name" json:"name"`
 	Capacity      *int                   `bun:"capacity" json:"capacity"`
-	Language      map[string]interface{} `bun:"language" json:"language"`
+	Language      map[string]interface{} `bun:"language" json:"language" swaggertype:"object"`
 }
 
 func AddCarpark(ctx context.Context, carpark *Carpark) error {

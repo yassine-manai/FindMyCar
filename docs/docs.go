@@ -68,6 +68,256 @@ const docTemplate = `{
                 }
             }
         },
+        "/fyc/UserAudit": {
+            "get": {
+                "description": "Get a list of UserAudit or a specific UserAudit by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Audit"
+                ],
+                "summary": "Get UserAudit or specific UserAudit by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserAudit ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of UserAudit or a single UserAudit",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.UserAudit"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid UserAudit ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No UserAudit found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing UserAudit by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Audit"
+                ],
+                "summary": "Update a UserAudit by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserAudit ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated UserAudit data",
+                        "name": "UserAudit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.UserAudit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UserAudit updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload or ID mismatch",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "UserAudit not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update UserAudit",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new UserAudit to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Audit"
+                ],
+                "summary": "Add a new UserAudit",
+                "parameters": [
+                    {
+                        "description": "UserAudit data",
+                        "name": "UserAudit",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.UserAudit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "UserAudit created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.UserAudit"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create a new UserAudit",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete a UserAudit by setting the is_deleted flag to true",
+                "tags": [
+                    "User Audit"
+                ],
+                "summary": "Soft delete a UserAudit",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserAudit ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UserAudit deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid UserAudit ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete UserAudit",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/cameraState": {
+            "put": {
+                "description": "Change the state of a camera (e.g., enabled/disabled) or retrieve a camera by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cameras"
+                ],
+                "summary": "Change camera state or retrieve cameras by ID",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Camera State",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Camera ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Number of rows affected by the state change",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid camera ID or state",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No cameras found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/fyc/cameras": {
             "get": {
                 "description": "Get a list of cameras or a specific camera by ID with optional extra data",
@@ -230,14 +480,14 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a camera by ID",
+                "description": "Soft delete a camera by setting the is_deleted flag to true",
                 "tags": [
                     "Cameras"
                 ],
-                "summary": "Delete a camera by ID",
+                "summary": "Soft delete a camera",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Camera ID",
                         "name": "id",
                         "in": "query",
@@ -253,14 +503,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid ID format",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Camera not found",
+                        "description": "Invalid camera ID",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -268,6 +511,104 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to delete camera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/camerasDeleted": {
+            "get": {
+                "description": "Get a list of deleted cameras or a specific camera by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cameras"
+                ],
+                "summary": "Get deleted cameras or a specific camera by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Camera ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of deleted cameras or a single camera",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Camera"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid camera ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No cameras found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/camerasEnabled": {
+            "get": {
+                "description": "Get a list of enabled cameras or a specific camera by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cameras"
+                ],
+                "summary": "Get enabled cameras or a specific camera by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Camera ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of enabled cameras or a single camera",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Camera"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid camera ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No cameras found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -437,161 +778,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/fyc/carparks": {
-            "get": {
-                "description": "Get a list of all carparks",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Carparks"
-                ],
-                "summary": "Get all carparks",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Include extra information if 'yes'",
-                        "name": "extra",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/pkg.Carpark"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new carpark to the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Carparks"
-                ],
-                "summary": "Add a new carpark",
-                "parameters": [
-                    {
-                        "description": "Carpark data",
-                        "name": "carpark",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Carpark"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Carpark"
-                        }
-                    }
-                }
-            }
-        },
-        "/fyc/carparks/{id}": {
-            "get": {
-                "description": "Get a specific carpark by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Carparks"
-                ],
-                "summary": "Get carpark by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Carpark ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Carpark"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update an existing carpark by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Carparks"
-                ],
-                "summary": "Update a carpark",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Carpark ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated carpark data",
-                        "name": "carpark",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Carpark"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Carpark"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a carpark by ID",
-                "tags": [
-                    "Carparks"
-                ],
-                "summary": "Delete a carpark",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Carpark ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Carpark deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/fyc/clientCreds": {
             "get": {
                 "description": "Get a list of all client credentials",
@@ -605,8 +791,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Include extra information if 'yes'",
-                        "name": "extra",
+                        "description": "Client ID",
+                        "name": "id",
                         "in": "query"
                     }
                 ],
@@ -616,7 +802,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/pkg.ApiManage"
+                                "$ref": "#/definitions/pkg.ApiKey"
                             }
                         }
                     }
@@ -641,7 +827,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg.ApiManage"
+                            "$ref": "#/definitions/pkg.ApiKey"
                         }
                     }
                 ],
@@ -649,36 +835,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/pkg.ApiManage"
+                            "$ref": "#/definitions/pkg.ApiKey"
                         }
                     }
                 }
-            }
-        },
-        "/fyc/clientCreds/{client_id}": {
-            "get": {
-                "description": "Get a specific client credential by ID",
-                "produces": [
-                    "application/json"
-                ],
+            },
+            "delete": {
+                "description": "Delete a client credential by ID",
                 "tags": [
                     "Client Credentials"
                 ],
-                "summary": "Get client credential by ID",
+                "summary": "Delete a client credential",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Client ID",
-                        "name": "client_id",
-                        "in": "path",
+                        "name": "id",
+                        "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Client credential deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/pkg.ApiManage"
+                            "type": "string"
                         }
                     }
                 }
@@ -702,7 +883,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Client ID",
                         "name": "id",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
@@ -711,7 +892,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg.ApiManage"
+                            "$ref": "#/definitions/pkg.ApiKey"
                         }
                     }
                 ],
@@ -719,31 +900,97 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/pkg.ApiManage"
+                            "$ref": "#/definitions/pkg.ApiKey"
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Delete a client credential by ID",
+            }
+        },
+        "/fyc/clientEnabled": {
+            "get": {
+                "description": "Get a list of enabled clients or a specific client by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Client Credentials"
                 ],
-                "summary": "Delete a client credential",
+                "summary": "Get enabled clients or a specific client by clientID",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Client ID",
                         "name": "id",
-                        "in": "path",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Client credential deleted successfully",
+                        "description": "List of enabled clients or a single client",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/pkg.ApiKey"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/clientState": {
+            "put": {
+                "description": "Change the state of a Client (e.g., enabled/disabled) or retrieve a client by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Change Client state or retrieve Client by ID",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Client State",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Client ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Number of rows affected by the state change",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/clientsDeleted": {
+            "get": {
+                "description": "Get a list of deleted Client or a specific Client by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client Credentials"
+                ],
+                "summary": "Get deleted Clients or a specific Client by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of deleted Clients or a Client Client",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.ApiKey"
                         }
                     }
                 }
@@ -851,11 +1098,7 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
+                "responses": {}
             }
         },
         "/fyc/errors/{code}": {
@@ -1398,6 +1641,679 @@ const docTemplate = `{
                 }
             }
         },
+        "/fyc/settings": {
+            "get": {
+                "description": "Get settings by CarPark ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Get settings by CarPark ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CarPark ID",
+                        "name": "carpark_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Settings"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing settings by CarPark ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Update settings by CarPark ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CarPark ID",
+                        "name": "carpark_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated settings data",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Settings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Settings"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add new settings for a CarPark",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Add new settings",
+                "parameters": [
+                    {
+                        "description": "Settings data",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Settings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Settings"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/sign": {
+            "get": {
+                "description": "Get a list of sign or a specific sign by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Get sign or specific sign by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "sign ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Include extra information if 'yes'",
+                        "name": "extra",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of sign or a single sign",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Sign"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid sign ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No sign found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing sign by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Update a sign by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "sign ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated sign data",
+                        "name": "sign",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Sign"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "sign updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload or ID mismatch",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "sign not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update sign",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new sign to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Add a new sign",
+                "parameters": [
+                    {
+                        "description": "sign data",
+                        "name": "sign",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Sign"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "sign created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Sign"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create a new sign",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete a sign by setting the is_deleted flag to true",
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Soft delete a sign",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "sign ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "sign deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid sign ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete sign",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/signDeleted": {
+            "get": {
+                "description": "Get a list of deleted sign or a specific sign by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Get deleted sign or a specific sign by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "sign ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of deleted sign or a single sign",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Sign"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid sign ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No sign found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/signEnabled": {
+            "get": {
+                "description": "Get a list of enabled sign or a specific sign by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Get enabled sign or a specific sign by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "sign ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of enabled sign or a single sign",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Sign"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid sign ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No sign found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/signState": {
+            "put": {
+                "description": "Change the state of a sign (e.g., enabled/disabled) or retrieve a sign by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Sign"
+                ],
+                "summary": "Change sign state or retrieve sign by ID",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "sign State",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "sign ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Number of rows affected by the state change",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request: Invalid sign ID or state",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "No sign found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/user": {
+            "post": {
+                "description": "Add a new User credential to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Add a new User credential",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "User",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.User"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a Use by username",
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a cUse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/user/{id}": {
+            "put": {
+                "description": "Update an existing client credential by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update a client credential",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated client credential data",
+                        "name": "clientCred",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/userDeleted": {
+            "get": {
+                "description": "Get a list of deleted Users or a specific User by username with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get deleted User or a specific User by username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of deleted Users or a User",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/userEnabled": {
+            "get": {
+                "description": "Get a list of enabled users or a specific user by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get enabled User or a specific User by username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UserName",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of enabled Users or a single User",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/userState": {
+            "put": {
+                "description": "Change the state of a user (e.g., enabled/disabled) or retrieve a user by username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Change user state or retrieve user by username",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Client State",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Number of rows affected by the state change",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/users": {
+            "get": {
+                "description": "Get a list of all Users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get all Users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pkg.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/fyc/v1/Auth/token": {
             "post": {
                 "description": "Generates a JWT token using client ID and client secret.",
@@ -1450,9 +2366,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/fyc/zoneState": {
+            "put": {
+                "description": "Change the state of a Zone (e.g., enabled/disabled) or retrieve a Zone by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Change Zone state or retrieve Zones by ID",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Zone State",
+                        "name": "state",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Zone ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Number of rows affected by the state change",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
         "/fyc/zones": {
             "get": {
-                "description": "Get a list of all zones",
+                "description": "Get a list of all zones, or a zone by ID if 'id' parameter is provided",
                 "produces": [
                     "application/json"
                 ],
@@ -1466,11 +2416,17 @@ const docTemplate = `{
                         "description": "Include extra information if 'yes'",
                         "name": "extra",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Zone ID",
+                        "name": "id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List of zones or a single zone",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -1514,33 +2470,6 @@ const docTemplate = `{
             }
         },
         "/fyc/zones/{id}": {
-            "get": {
-                "description": "Get a specific zone by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Zones"
-                ],
-                "summary": "Get zone by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Zone ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/pkg.Zone"
-                        }
-                    }
-                }
-            },
             "put": {
                 "description": "Update an existing zone by ID",
                 "consumes": [
@@ -1576,20 +2505,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/pkg.Zone"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Zone not found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
                         }
                     }
                 }
@@ -1629,6 +2544,65 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/zonesDeleted": {
+            "get": {
+                "description": "Get a list of Deleted zones or a specific zone by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Get Deleted zones or a specific zone by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Zone ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of Deleted zones or a single zone",
+                        "schema": {
+                            "$ref": "#/definitions/pkg.Zone"
+                        }
+                    }
+                }
+            }
+        },
+        "/fyc/zonesEnabled": {
+            "get": {
+                "description": "Get a list of enabled zones or a specific zone by ID with optional extra data",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Get enabled zones or a specific zone by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Zone ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of enabled zones or a single zone",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/pkg.Zone"
+                            }
                         }
                     }
                 }
@@ -1956,27 +2930,47 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "pkg.ApiManage": {
+        "pkg.ApiKey": {
             "type": "object",
             "required": [
-                "client_secret",
-                "fuzzy"
+                "api_key",
+                "client_id",
+                "client_secret"
             ],
             "properties": {
+                "api_key": {
+                    "type": "string"
+                },
                 "client_id": {
+                    "type": "string"
+                },
+                "client_name": {
                     "type": "string"
                 },
                 "client_secret": {
                     "type": "string"
                 },
                 "fuzzy": {
-                    "type": "string"
+                    "type": "boolean",
+                    "default": false
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "is_enabled": {
+                    "type": "boolean",
+                    "default": false
                 }
             }
         },
         "pkg.Camera": {
             "type": "object",
             "required": [
+                "cam_id",
                 "cam_ip",
                 "cam_name",
                 "cam_password",
@@ -1989,6 +2983,9 @@ const docTemplate = `{
                 "zone_id_out"
             ],
             "properties": {
+                "cam_id": {
+                    "type": "integer"
+                },
                 "cam_ip": {
                     "type": "string"
                 },
@@ -1999,7 +2996,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "cam_port": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "cam_type": {
                     "type": "string"
@@ -2011,11 +3008,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "is_deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "is_enabled": {
+                    "type": "boolean",
+                    "default": false
                 },
                 "zone_id_in": {
                     "type": "integer"
@@ -2036,12 +3040,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "cam_body": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -2063,42 +3065,13 @@ const docTemplate = `{
                 "facility": {
                     "type": "integer"
                 },
+                "licence": {
+                    "type": "string"
+                },
                 "picture_name": {
                     "type": "string"
                 },
                 "spot_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "pkg.Carpark": {
-            "type": "object",
-            "required": [
-                "capacity",
-                "extra",
-                "language",
-                "name",
-                "type"
-            ],
-            "properties": {
-                "capacity": {
-                    "type": "integer"
-                },
-                "extra": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "language": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
                     "type": "string"
                 }
             }
@@ -2110,10 +3083,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "messages": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
+                    "type": "object"
                 }
             }
         },
@@ -2137,13 +3107,12 @@ const docTemplate = `{
                 "extra",
                 "image_l",
                 "image_s",
-                "lang",
+                "language",
                 "zone_id"
             ],
             "properties": {
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -2154,7 +3123,7 @@ const docTemplate = `{
                 "image_s": {
                     "type": "string"
                 },
-                "lang": {
+                "language": {
                     "type": "string"
                 },
                 "zone_id": {
@@ -2173,7 +3142,7 @@ const docTemplate = `{
         "pkg.PresentCar": {
             "type": "object",
             "required": [
-                "camera_id",
+                "came ra_id",
                 "car_details_id",
                 "confidence",
                 "currZoneID",
@@ -2184,7 +3153,7 @@ const docTemplate = `{
                 "transaction_date"
             ],
             "properties": {
-                "camera_id": {
+                "came ra_id": {
                     "type": "integer"
                 },
                 "car_details_id": {
@@ -2200,8 +3169,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -2231,8 +3199,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "cam_body": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "cam_id": {
                     "type": "integer"
@@ -2244,8 +3211,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "extra": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -2263,17 +3229,78 @@ const docTemplate = `{
         },
         "pkg.Settings": {
             "type": "object",
+            "required": [
+                "app_logo",
+                "carpark_id",
+                "carpark_name",
+                "couting_clean_cron",
+                "default_lang",
+                "fyc_clean_cron",
+                "timeout_screenKiosk"
+            ],
             "properties": {
-                "def_lang": {
+                "app_logo": {
                     "type": "string"
                 },
-                "fuzzyLogic": {
-                    "type": "boolean"
+                "carpark_id": {
+                    "type": "integer"
                 },
-                "logo": {
+                "carpark_name": {
+                    "type": "string"
+                },
+                "couting_clean_cron": {
+                    "type": "string"
+                },
+                "default_lang": {
+                    "type": "string",
+                    "default": "EN"
+                },
+                "fyc_clean_cron": {
                     "type": "string"
                 },
                 "timeout_screenKiosk": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pkg.Sign": {
+            "type": "object",
+            "required": [
+                "sign_id",
+                "sign_ip",
+                "sign_name",
+                "sign_port",
+                "sign_type",
+                "zone_id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "is_enabled": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "sign_id": {
+                    "type": "integer"
+                },
+                "sign_ip": {
+                    "type": "string"
+                },
+                "sign_name": {
+                    "type": "string"
+                },
+                "sign_port": {
+                    "type": "integer"
+                },
+                "sign_type": {
+                    "type": "string"
+                },
+                "zone_id": {
                     "type": "integer"
                 }
             }
@@ -2315,45 +3342,120 @@ const docTemplate = `{
                 }
             }
         },
-        "pkg.Zone": {
+        "pkg.User": {
             "type": "object",
             "required": [
-                "carpark_id",
-                "description",
-                "extra",
-                "max_capacity",
-                "name",
-                "present",
-                "zone_id"
+                "first_name",
+                "last_name",
+                "password",
+                "role",
+                "username"
             ],
             "properties": {
-                "carpark_id": {
-                    "type": "integer"
-                },
-                "description": {
+                "first_name": {
                     "type": "string"
-                },
-                "extra": {
-                    "type": "object",
-                    "additionalProperties": true
                 },
                 "id": {
                     "type": "integer"
+                },
+                "is_deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "is_enabled": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "pkg.UserAudit": {
+            "type": "object",
+            "required": [
+                "action_date",
+                "module",
+                "new_value",
+                "old_value",
+                "user_id"
+            ],
+            "properties": {
+                "action_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "module": {
+                    "type": "string"
+                },
+                "new_value": {
+                    "type": "object"
+                },
+                "old_value": {
+                    "type": "object"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pkg.Zone": {
+            "type": "object",
+            "required": [
+                "extra",
+                "free_capacity",
+                "last_update",
+                "max_capacity",
+                "name",
+                "zone_id"
+            ],
+            "properties": {
+                "extra": {
+                    "type": "object"
+                },
+                "free_capacity": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "is_enabled": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "last_update": {
+                    "type": "string"
                 },
                 "max_capacity": {
                     "type": "integer"
                 },
                 "name": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "present": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "zone_id": {
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
         }
     }
 }`

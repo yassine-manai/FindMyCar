@@ -3,20 +3,22 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmc/config"
-	_ "fmc/docs"
-	"fmc/pkg"
-	"fmc/routes"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
+
+	"fmc/config"
+	_ "fmc/docs"
+	"fmc/pkg"
+	"fmc/routes"
 )
 
 // @title           Find Your Car
 // @version         1.0
+// @securityDefinitions.basic  BasicAuth
 
 func main() {
 	config.InitLogger()
@@ -59,7 +61,7 @@ func main() {
 	} */
 	ctx := context.Background()
 
-	_, PresentCarError := pkg.Dbg.NewCreateTable().Model((*pkg.ErrorMessage)(nil)).IfNotExists().Exec(ctx)
+	_, PresentCarError := pkg.Dbg.NewCreateTable().Model((*pkg.Settings)(nil)).IfNotExists().Exec(ctx)
 	if PresentCarError != nil {
 		panic(PresentCarError)
 	}
@@ -69,12 +71,11 @@ func main() {
 	// Data in list in startup
 	fmt.Println("-------------------------------- # DATA LIST START # ------------------------------")
 	pkg.Loadzonelist()
-	pkg.LoadCarparklist()
-	pkg.LoadCameralist()
+	fmt.Println("Zonelist Length", len(pkg.Zonelist))
 
-	fmt.Println(len(pkg.Zonelist))
-	fmt.Println(len(pkg.CarParkList))
-	fmt.Println(len(pkg.CameraList))
+	pkg.LoadCameralist()
+	fmt.Println("CameraList Length", len(pkg.CameraList))
+
 	fmt.Println("-------------------------------- #  DATA LIST END # ------------------------------")
 
 	r := routes.SetupRouter()

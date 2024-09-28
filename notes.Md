@@ -27,18 +27,15 @@ StatusOK - 8
 
 ------------------------------- To DO --------------------------
 databse/schema creation to take in consideration check it befre everything
-
 autocreate of tables, double check it
-
 Lang Models
 List Return for all with id
-
 // map error code
 map[int]string
 
 
 ------------------------------- DONE -------------------------
-* Setup Routes 
+Setup Routes 
 
 
 

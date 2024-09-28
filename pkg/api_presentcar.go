@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"context"
-	"fmc/functions"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+
+	"fmc/functions"
 )
 
 // GetAllPresentCars godoc
@@ -101,7 +102,7 @@ func GetPresentCarByLPNAPI(c *gin.Context) {
 		return
 	}
 
-	if extra_req == "yes" {
+	if extra_req == "yes" || extra_req == "true" || extra_req == "1" {
 		responseExtra := PresentCar{
 			ID:              car.ID,
 			CarDetailsID:    car.CarDetailsID,

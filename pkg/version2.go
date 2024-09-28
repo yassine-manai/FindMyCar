@@ -25,6 +25,7 @@ type CarLocation struct {
 	Facility    int    `json:"facility"`
 	SpotID      string `json:"spot_id"`
 	PictureName string `json:"picture_name"`
+	Licence     string `json:"licence"`
 }
 
 type FindMyCarResponse struct {
@@ -188,7 +189,7 @@ func FindMyCar(c *gin.Context) {
 	}
 
 	for _, zoneImage := range zoneImages {
-		if language == zoneImage.Lang || fuzzyLogic == "false" {
+		if language == zoneImage.Language || fuzzyLogic == "false" {
 			Response.PictureName = zoneImage.ImageLg
 			c.JSON(http.StatusOK, gin.H{
 				"ResponseCode": 200,
@@ -264,7 +265,7 @@ func GetPicture(c *gin.Context) {
 	})
 }
 
-type Settings struct {
+type Sett struct {
 	Logo               string `json:"logo"`
 	TimeOutScreenKiosk int    `json:"timeout_screenKiosk"`
 	DesfaultLanguage   string `json:"def_lang"`
@@ -287,7 +288,7 @@ func Getsettings(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Settings{
+	c.JSON(http.StatusOK, Sett{
 		Logo:               TestLogo,
 		TimeOutScreenKiosk: 10,
 		DesfaultLanguage:   "EN",

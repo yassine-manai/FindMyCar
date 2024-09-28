@@ -11,15 +11,15 @@ import (
 type PresentCar struct {
 	bun.BaseModel   `json:"-" bun:"table:presentcar"`
 	ID              *int                   `bun:"id,pk,autoincrement" json:"id"`
-	CarDetailsID    *int                   `bun:"car_details_id" json:"car_details_id" binding:"required"`
-	CameraID        *int                   `bun:"camera_id" json:"camera_id" binding:"required"`
-	Confidence      *int                   `bun:"confidence" json:"confidence" binding:"required"`
+	TransactionDate string                 `bun:"transaction_date" json:"transaction_date" binding:"required"`
+	CameraID        *int                   `bun:"camera_id" json:"came ra_id" binding:"required"`
+	LPN             string                 `bun:"lpn" json:"lpn" binding:"required"`
 	CurrZoneID      *int                   `bun:"curr_zone_id" json:"currZoneID" binding:"required"`
 	LastZoneID      *int                   `bun:"last_zone_id" json:"last_zone_id" binding:"required"`
 	Direction       string                 `bun:"direction" json:"direction" binding:"required"`
-	LPN             string                 `bun:"lpn" json:"lpn" binding:"required"`
-	TransactionDate string                 `bun:"transaction_date" json:"transaction_date" binding:"required"`
-	Extra           map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required"`
+	Confidence      *int                   `bun:"confidence" json:"confidence" binding:"required"`
+	CarDetailsID    *int                   `bun:"car_details_id" json:"car_details_id" binding:"required"`
+	Extra           map[string]interface{} `bun:"extra,type:jsonb" json:"extra" binding:"required" swaggertype:"object"`
 }
 
 type ResponsePC struct {

@@ -1,12 +1,13 @@
 package routes
 
 import (
-	"fmc/config"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	"fmc/config"
 )
 
 func SetupRouter() *gin.Engine {
@@ -14,17 +15,21 @@ func SetupRouter() *gin.Engine {
 	r.Use(config.CustomErrorHandler())
 
 	fmt.Println("--------------------------  START ROUTING  ----------------------")
+	DebugRoutes(r) // Debug routes
+	AuthRoutes(r)  // TestRoutes
 
-	carParkRouter(r)
-	PresentCarRoutes(r)
-	ZoneRoutes(r)
 	ZoneImageRoutes(r)
 	CameraRoutes(r)
+	ZoneRoutes(r)
+	PresentCarRoutes(r)
 	CarDetailRoutes(r)
 	ClientCredsRoutes(r)
+	SignRoutes(r)
+	UserAuditRoutes(r)
+	UserRoutes(r)
+	SettingsRoutes(r)
+
 	HistoryRoutes(r)
-	AuthRoutes(r)
-	DebugRoutes(r)
 	ErrorRoutes(r)
 
 	fmt.Println("--------------------------  END ROUTING  ----------------------")

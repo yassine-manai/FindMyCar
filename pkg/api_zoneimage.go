@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"context"
-	"fmc/functions"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,6 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+
+	"fmc/functions"
 )
 
 // GetZonesImages godoc
